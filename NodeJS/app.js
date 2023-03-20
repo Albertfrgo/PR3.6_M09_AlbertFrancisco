@@ -3,7 +3,13 @@ const fs = require('fs/promises')
 const url = require('url')
 const post = require('./post.js')
 const { v4: uuidv4 } = require('uuid')
-const mysql = require('mysql2')
+
+/* Variables para tener un modelo completo del juego */
+
+/* estado del juego y si se han conectado los jugadores */
+let gameRunning = false;
+let player1 = false;
+let player2 = false;
 
 // Wait 'ms' milliseconds
 function wait (ms) {
@@ -31,6 +37,23 @@ const wss = new WebSocket.Server({ server: httpServer })
 const socketsClients = new Map()
 console.log(`Listening for WebSocket queries on ${port}`)
 
+const loopInterval = 500;
+let gameLoop;;
+
+function startGame(){
+  gameRunning = true;
+  console.log("Starting game execution");
+  gameLoop = setInterval(() => {
+    console.log("Game Execution...");
+  }, loopInterval);
+}
+
+function stopLoop(){
+  gameRunning = false;
+  console.log("Stopping game execution");
+  clearInterval(gameLoop);
+}
+
 // What to do when a websocket client connects
 wss.on('connection', (ws) => {
 
@@ -41,9 +64,6 @@ wss.on('connection', (ws) => {
   const color = Math.floor(Math.random() * 360)
   const metadata = { id, color }
   socketsClients.set(ws, metadata)
-
-  // Send clients list to everyone
-  sendClients()
 
   // What to do when a client is disconnected
   ws.on("close", () => {
@@ -61,15 +81,12 @@ wss.on('connection', (ws) => {
     try { messageAsObject = JSON.parse(messageAsString) } 
     catch (e) { console.log("Could not parse bufferedMessage from WS message") }
 
-    if (messageAsObject.type == "bounce") {
-      var rst = { type: "bounce", message: messageAsObject.message }
-      ws.send(JSON.stringify(rst))
-    } else if (messageAsObject.type == "broadcast") {
-      var rst = { type: "broadcast", origin: id, message: messageAsObject.message }
-      broadcast(rst)
-    } else if (messageAsObject.type == "private") {
-      var rst = { type: "private", origin: id, destination: messageAsObject.destination, message: messageAsObject.message }
-      private(rst)
+    /* Empieza el juego y llamara a la funcion correspondiente */
+    if(messageAsObject.type == "startGame"){
+      startGame();
+    }
+    if(messageAsObject.type == "stopGame"){
+      stopLoop();
     }
 
     var rst = { type: "answer", message: numberRandomAnswer }
@@ -78,59 +95,4 @@ wss.on('connection', (ws) => {
   })
 })
 
-// Send clientsIds to everyone
-function sendClients () {
-  var clients = []
-  socketsClients.forEach((value, key) => {
-    clients.push(value.id)
-  })
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      var id = socketsClients.get(client).id
-      var messageAsString = JSON.stringify({ type: "clients", id: id, list: clients })
-      client.send(messageAsString)
-    }
-  })
-}
 
-// Send a message to all websocket clients
-async function broadcast (obj) {
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      var messageAsString = JSON.stringify(obj)
-      client.send(messageAsString)
-    }
-  })
-}
-
-// Send a private message to a specific client
-async function private (obj) {
-  wss.clients.forEach((client) => {
-    if (socketsClients.get(client).id == obj.destination && client.readyState === WebSocket.OPEN) {
-      var messageAsString = JSON.stringify(obj)
-      client.send(messageAsString)
-      return
-    }
-  })
-}
-
-// Perform a query to the database
-function queryDatabase (query) {
-
-  return new Promise((resolve, reject) => {
-    var connection = mysql.createConnection({
-      host: process.env.MYSQLHOST || "localhost",
-      port: process.env.MYSQLPORT || 3306,
-      user: process.env.MYSQLUSER || "root",
-      password: process.env.MYSQLPASSWORD || "",
-      database: process.env.MYSQLDATABASE || "test"
-    });
-
-    connection.query(query, (error, results) => { 
-      if (error) reject(error);
-      resolve(results)
-    });
-     
-    connection.end();
-  })
-}

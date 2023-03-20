@@ -76,6 +76,12 @@ public class ControllerLogin implements Initializable {
         setNextView();
         ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
         ctrlGame.startBallMovement();
+
+        JSONObject objJson = new JSONObject("{}");
+        String type = "startGame";
+        objJson.put("type", type);
+        Main.socketClient.safeSend(objJson.toString());
+        System.out.println("Send WebSocket: " + objJson.toString());
     }
 
     @Override

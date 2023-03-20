@@ -112,6 +112,8 @@ public class CtrlGameCanvas {
 
         final double boardWidth = cnv.getWidth();
         final double boardHeight = cnv.getHeight();
+        // final double boardWidth = 400;
+        // final double boardHeight = 300;
 
         // Move player
         switch (playerDirection) {
@@ -269,7 +271,7 @@ public class CtrlGameCanvas {
         gc.setFill(Color.BLACK);
         gc.setFont(new Font("Arial", 20));
         String pointsText = "Points: " + playerPoints;
-        drawText(gc, pointsText, cnv.getWidth() - 20, 20, "right");
+        drawText(gc, pointsText, cnv.getWidth()/2 - 20, 20, "right");
 
         // Draw game over text
         if (gameStatus.equals("gameOver")) {

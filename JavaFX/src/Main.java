@@ -79,6 +79,13 @@ public class Main extends Application {
     @Override
     public void stop() { 
         ctrlGame.drawingStop();
+
+        JSONObject objJson = new JSONObject("{}");
+        String type = "stopGame";
+        objJson.put("type", type);
+        Main.socketClient.safeSend(objJson.toString());
+        System.out.println("Send WebSocket: " + objJson.toString());
+
         System.exit(1); // Kill all executor services
     }
 
