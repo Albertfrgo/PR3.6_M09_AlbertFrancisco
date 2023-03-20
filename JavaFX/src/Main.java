@@ -66,6 +66,7 @@ public class Main extends Application {
                     * sacar la info y hacer cambios sobre el controlador de la logica de juego ctrlGame
                     */
                     JSONObject msgObj = new JSONObject(response);
+                    System.out.println("The answer is" +msgObj.toString());
 
                 });
             });

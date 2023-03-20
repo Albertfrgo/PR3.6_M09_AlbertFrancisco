@@ -25,119 +25,6 @@ function appListen () {
   console.log(`Listening for HTTP queries on: http://localhost:${port}`)
 }
 
-// Set URL rout for POST queries
-app.post('/dades', getDades)
-async function getDades (req, res) {
-  try{
-
- 
-  let receivedPOST = await post.getPostObject(req)
-  let result = {};
-
-  var textFile = await fs.readFile("./public/consoles/consoles-list.json", { encoding: 'utf8'})
-  var objConsolesList = JSON.parse(textFile)
-
-  if (receivedPOST) {
-    console.log("Peticio rebuda: " + receivedPOST.type + " " + receivedPOST.name )
-    if (receivedPOST.type == "consola") {
-      // console.log("\npeticio d'informacio d'una consola'");
-      var objFilteredList = objConsolesList.filter((obj) => { return obj.name == receivedPOST.name })
-      await wait(1500)
-      if (objFilteredList.length > 0) {
-        result = { status: "OK", result: objFilteredList[0] }
-      }
-    }
-    if (receivedPOST.type == "consoles") {
-      // console.log("codi marca")
-      var objBrandConsolesList = objConsolesList
-      await wait(1500)
-      // Ordena les consoles per nom de model
-      objBrandConsolesList.sort((a,b) => { 
-          var textA = a.name.toUpperCase();
-          var textB = b.name.toUpperCase();
-          return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-      })
-      result = { status: "OK", result: objBrandConsolesList } 
-    }
-    if (receivedPOST.type == "marques") {
-      // console.log("\npeticio de marques");
-      var objBrandsList = objConsolesList.map((obj) => { return obj.brand })
-      await wait(1500)
-      let senseDuplicats = [...new Set(objBrandsList)]
-      result = { status: "OK", result: senseDuplicats.sort() } 
-    }
-    if (receivedPOST.type == "colors") {
-        // console.log("\npeticio de colors");
-        var objLlistaColors = objConsolesList.map(function (obj){ return obj.color})
-        await wait(1500)
-        let senseDuplicats = [...new Set(objLlistaColors)]
-        result = { status: "OK",result : senseDuplicats}
-    }
-    if (receivedPOST.type == "processadors") {
-      // console.log("\npeticio de processadors");
-      var objLlistaProcessadors = objConsolesList.map(function (obj){ return obj.processor})
-      await wait(1500)
-      let senseDuplicats = [...new Set(objLlistaProcessadors)]
-      result = {status: "OK", result : senseDuplicats}
-    }
-    if (receivedPOST.type == "consolesMarca") {
-      // console.log("\npeticio de les consoles d'una marca determinada");
-      var objBrandConsolesList = objConsolesList.filter ((obj) => { return obj.brand == receivedPOST.name })
-      await wait(1500)
-      // Ordena les consoles per nom de model
-      objBrandConsolesList.sort((a,b) => { 
-          var textA = a.name.toUpperCase();
-          var textB = b.name.toUpperCase();
-          return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-      })
-      result = { status: "OK", result: objBrandConsolesList } 
-    }
-    if (receivedPOST.type == "consolesColor") {
-      // console.log("\npeticio de les consoles d'un color determinat");
-      var objBrandConsolesList = objConsolesList.filter ((obj) => { return obj.color == receivedPOST.name })
-      await wait(1500)
-      // Ordena les consoles per nom de model
-      objBrandConsolesList.sort((a,b) => { 
-          var textA = a.name.toUpperCase();
-          var textB = b.name.toUpperCase();
-          return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-      })
-      result = { status: "OK", result: objBrandConsolesList } 
-    }
-    //Cerca modificada perque enlloc de buscar que coincideixi, buscar que contingui la paraula de cerca
-    if (receivedPOST.type == "consolesProcessador") {
-      // console.log("\npeticio de les consoles d'un processador determinat");
-      var objBrandConsolesList = objConsolesList.filter ((obj) => { return obj.processor == receivedPOST.name })
-      await wait(1500)
-      // Ordena les consoles per nom de model
-      objBrandConsolesList.sort((a,b) => { 
-          var textA = a.name.toUpperCase();
-          var textB = b.name.toUpperCase();
-          return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-      })
-      result = { status: "OK", result: objBrandConsolesList } 
-    }
-    if (receivedPOST.type == "login") {
-      // console.log("codi login")
-      let port =receivedPOST.port
-      let server =receivedPOST.server
-      if (port == 3000 && server == "localhost") {
-        result = { status: "OK", result: "ACCEPTED" }
-      }else{
-        result = { status: "OK", result: "DENIED" }
-      }
-    }
-  }
-
-  // console.log(JSON.stringify(result))
-  res.writeHead(200, { 'Content-Type': 'application/json' })
-  res.end(JSON.stringify(result))
-
-  }catch(e){
-    console.log("ERROR: " + e.stack)
-  }
-}
-
 // Run WebSocket server
 const WebSocket = require('ws')
 const wss = new WebSocket.Server({ server: httpServer })
@@ -165,6 +52,9 @@ wss.on('connection', (ws) => {
 
   // What to do when a client message is received
   ws.on('message', (bufferedMessage) => {
+    console.log("Message received from client: " + bufferedMessage)
+    let numberRandomAnswer = Math.floor((Math.random() * 10) + 1);
+
     var messageAsString = bufferedMessage.toString()
     var messageAsObject = {}
     
@@ -181,6 +71,10 @@ wss.on('connection', (ws) => {
       var rst = { type: "private", origin: id, destination: messageAsObject.destination, message: messageAsObject.message }
       private(rst)
     }
+
+    var rst = { type: "answer", message: numberRandomAnswer }
+    console.log("Will respond " +JSON.stringify(rst));
+    ws.send(JSON.stringify(rst));
   })
 })
 

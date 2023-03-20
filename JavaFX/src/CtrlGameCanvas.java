@@ -55,7 +55,7 @@ public class CtrlGameCanvas {
     }
 
     private void sendMessage(){
-        String message = "Pong";
+        String message = "test Pong";
 
         JSONObject objJson = new JSONObject("{}");
         String type = "test Message";
