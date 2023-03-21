@@ -91,8 +91,6 @@ public class CtrlGameCanvas {
 
     // Animar
     private void run(double fps) {
-
-
         /* Trozo de testeo para visualizar datos, 
          * algunos datos se iran enviando constantemente por el socket
          */
@@ -137,110 +135,6 @@ public class CtrlGameCanvas {
 
             playerX = playerMaxX;
         }
-
-        // Move ball
-        double ballNextX = ballX;
-        double ballNextY = ballY;
-        switch (ballDirection) {
-            case "upRight": 
-                ballNextX = ballX + ballSpeed / fps;
-                ballNextY = ballY - ballSpeed / fps;
-                break;
-            case "upLeft": 
-                ballNextX = ballX - ballSpeed / fps;
-                ballNextY = ballY - ballSpeed / fps;
-                break;
-            case "downRight": 
-                ballNextX = ballX + ballSpeed / fps;
-                ballNextY = ballY + ballSpeed / fps;
-                break;
-            case "downLeft": 
-                ballNextX = ballX - ballSpeed / fps;
-                ballNextY = ballY + ballSpeed / fps;
-                break;
-        }
-
-        // Check ball collision with board sides
-        final double[][] lineBall = { {ballX, ballY}, {ballNextX, ballNextY} };
-
-        final double[][] lineBoardLeft = { {borderSize, 0}, {borderSize, boardHeight} };
-        final double[] intersectionLeft = findIntersection(lineBall, lineBoardLeft);
-
-        final double boardMaxX = boardWidth - borderSize;
-        final double[][] lineBoardRight = { {boardMaxX, 0}, {boardMaxX, boardHeight} };
-        final double[] intersectionRight = findIntersection(lineBall, lineBoardRight);
-
-        final double[][] lineBoardTop = { {0, borderSize}, {boardWidth, borderSize} };
-        final double[] intersectionTop = findIntersection(lineBall, lineBoardTop);
-
-        if (intersectionLeft != null) {
-            switch (ballDirection) {
-                case "upLeft": 
-                    ballDirection = "upRight";
-                    break;
-                case "downLeft": 
-                    ballDirection = "downRight";
-                    break;
-            }
-            ballX = intersectionLeft[0] + 1;
-            ballY = intersectionLeft[1];
-
-        } else if (intersectionRight != null) {
-
-            switch (ballDirection) {
-                case "upRight": 
-                    ballDirection = "upLeft";
-                    break;
-                case "downRight": 
-                    ballDirection = "downLeft";
-                    break;
-            }
-            ballX = intersectionRight[0] - 1;
-            ballY = intersectionRight[1];
-
-        } else if (intersectionTop != null) {
-
-            switch (ballDirection) {
-                case "upRight": 
-                    ballDirection = "downRight"; 
-                    break;
-                case "upLeft": 
-                    ballDirection = "downLeft"; 
-                    break;
-            }
-            ballX = intersectionTop[0];
-            ballY = intersectionTop[1] + 1;
-
-        } else {
-            if (ballNextY > boardHeight) {
-                gameStatus = "gameOver";
-            } else {
-                ballX = ballNextX;
-                ballY = ballNextY;
-            }
-        }
-
-        // Check ball collision with player
-        final double[][] linePlayer = { {playerX - playerHalf, playerY}, {playerX + playerHalf, playerY} };
-        final double[] intersectionPlayer = findIntersection(lineBall, linePlayer);
-
-        if (intersectionPlayer != null) {
-
-            switch (ballDirection) {
-                case "downRight": 
-                    ballDirection = "upRight";
-                    break;
-                case "downLeft": 
-                    ballDirection = "upLeft";
-                    break;
-            }
-            ballX = intersectionPlayer[0];
-            ballY = intersectionPlayer[1] - 1;
-            playerPoints = playerPoints + 1;
-            ballSpeed = ballSpeed + ballSpeedIncrement;
-            playerSpeed = playerSpeed + playerSpeedIncrement;
-        }
-
         // Set player Y position
         playerY = cnv.getHeight() - playerHeight - 10;
     }
@@ -262,6 +156,8 @@ public class CtrlGameCanvas {
         gc.setStroke(Color.GREEN);
         gc.setLineWidth(playerHeight);
         gc.strokeRect(playerX - playerHalf, playerY, playerWidth, playerHeight);
+        // gc.setLineWidth(playerHeight);
+        // gc.strokeRect(400 - playerHalf, 400, playerWidth, playerHeight);
 
         // Draw ball
         gc.setFill(Color.BLACK);
