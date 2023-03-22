@@ -66,6 +66,14 @@ public class CtrlGameCanvas {
         System.out.println("Send WebSocket: " + objJson.toString());
     }
 
+    private void requestInfoBall(){
+        JSONObject objJson = new JSONObject("{}");
+        String message = "requestingBallInfo";
+        String type = "requestingBallInfo";
+        objJson.put("type", type);
+        objJson.put("message", message);
+    }
+
     // Iniciar el context i bucle de dibuix
     public void start (Canvas canvas) {
 

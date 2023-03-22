@@ -4,6 +4,10 @@ const url = require('url')
 const post = require('./post.js')
 const { v4: uuidv4 } = require('uuid')
 
+/* De momento el servidor lo estoy haciendo para que funcione con un solo jugador
+En el servidor se calcula el movimiento de la bola, si hay choque entre la bola y el jugador
+y recibe del jugador la posición de este (el cliente lo movera) */
+
 /* Variables para tener un modelo completo del juego */
 
 let borderSize =5;
@@ -31,14 +35,162 @@ const widthGame = 800;
 const heightGame = 600;
 let fps =60;
 
-/* loopInterval establece cada cuanto el servidor hara calculos de la posicion de la pelota */
-const loopInterval = 10;
-let gameLoop;;
+let currentFPS =60;
+let TARGET_MS = 1000 / fps;
+let frameCount;
+let fpsStartTime;
 
 /* Funcion que se ejecuta cada cierto tiempo en donde se calculara toda la logica del juego
 movimiento de la pelota y colision pelota-jugador, la posicion del jugador la ira recibiendo de
 la info que envia el websocket */
+function gameLoop() {
+  try{
+    const startTime = Date.now();
 
+    if (currentFPS >= 1) {
+        // Cridar aquí la funció que actualitza el joc (segons currentFPS)
+
+        try{
+          console.log("Game Execution, calculating ball movement...");
+    
+          if(fps < 1){
+            return;
+          }
+          let boardWidth = widthGame;
+          let boardHeight = heightGame;
+    
+          // Move ball
+          let ballNextX = ballX;
+          let ballNextY = ballY;
+          switch (ballDirection) {
+            case "upRight": 
+            ballNextX = ballX + ballSpeed / fps;
+            ballNextY = ballY - ballSpeed / fps;
+            break;
+          case "upLeft": 
+              ballNextX = ballX - ballSpeed / fps;
+              ballNextY = ballY - ballSpeed / fps;
+              break;
+          case "downRight": 
+              ballNextX = ballX + ballSpeed / fps;
+              ballNextY = ballY + ballSpeed / fps;
+              break;
+          case "downLeft": 
+              ballNextX = ballX - ballSpeed / fps;
+              ballNextY = ballY + ballSpeed / fps;
+              break;
+          }
+    
+          // Check ball collision with board sides
+          const lineBall = [ [ballX, ballY], [ballNextX, ballNextY] ];
+    
+          const lineBoardLeft = [ [borderSize, 0], [borderSize, boardHeight] ];
+          const intersectionLeft = findIntersection(lineBall, lineBoardLeft);
+    
+          const boardMaxX = boardWidth - borderSize;
+          const lineBoardRight = [ [boardMaxX, 0], [boardMaxX, boardHeight] ];
+          const intersectionRight = findIntersection(lineBall, lineBoardRight);
+    
+          const lineBoardTop = [ [0, borderSize], [boardWidth, borderSize] ];
+          const intersectionTop = findIntersection(lineBall, lineBoardTop);
+    
+          if (intersectionLeft != null){
+            switch (ballDirection) {
+              case "upLeft": 
+                  ballDirection = "upRight";
+                  break;
+              case "downLeft": 
+                  ballDirection = "downRight";
+                  break;
+            }
+            ballX = intersectionLeft[0] +1;
+            ballY = intersectionLeft[1];
+          } else if (intersectionRight != null){
+            switch (ballDirection) {
+              case "upRight": 
+                  ballDirection = "upLeft";
+                  break;
+              case "downRight": 
+                  ballDirection = "downLeft";
+                  break;
+            }
+            ballX = intersectionRight[0] -1;
+            ballY = intersectionRight[1];
+          } else if (intersectionTop != null){
+            switch (ballDirection) {
+              case "upRight": 
+                  ballDirection = "downRight"; 
+                  break;
+              case "upLeft": 
+                  ballDirection = "downLeft"; 
+                  break;
+            }
+            ballX = intersectionTop[0];
+            ballY = intersectionTop[1] + 1;
+          } else {
+            if (ballNextY > boardHeight){
+              gameStatus = "gameOver";
+            } else {
+              ballX = ballNextX;
+              ballY = ballNextY;
+            }
+          }
+    
+          // Check ball collision with player
+          const linePlayer = [[playerX - playerHalf, playerY], [playerX + playerHalf, playerY]];
+          const intersectionPlayer = findIntersection(lineBall, linePlayer);
+    
+          if(intersectionPlayer != null){
+            switch (ballDirection){
+              case "downRight":
+                ballDirection = "upRight";
+                break;
+              case "downLeft":
+                ballDirection = "upLeft";
+                break;
+            }
+            ballX = intersectionPlayer[0];
+            ballY = intersectionPlayer[1] - 1;
+            playerPoints = playerPoints + 1;
+            ballSpeed = ballSpeed + ballSpeedIncrement;
+            playerSpeed = playerSpeed + playerSpeedIncrement;
+          }
+    
+          playerY = heightGame - playerHeight - borderSize *2;
+        }catch(err){
+          console.log(err);
+        }
+
+        // Cridar aquí la funció que fa un broadcast amb les dades del joc a tots els clients
+        var rst = { type: "ballInfoBroadcast", message: "ball info" }
+        broadcast(rst)
+    }
+
+    const endTime = Date.now();
+    const elapsedTime = endTime - startTime;
+    const remainingTime = Math.max(1, TARGET_MS - elapsedTime);
+
+    frameCount++;
+    const fpsElapsedTime = endTime - fpsStartTime;
+    if (fpsElapsedTime >= 500) {
+        currentFPS = (frameCount / fpsElapsedTime) * 1000;
+        frameCount = 0;
+        fpsStartTime = endTime;
+    }
+    if(gameRunning){
+      setTimeout(() => { setImmediate(gameLoop); }, remainingTime);
+    }
+  }catch(err){
+    console.log(err);
+  }
+}
+
+function stopLoop(){
+  gameRunning = false;
+  console.log("Stopping game execution");
+}
+
+/* Funcion que es llamada cuando se recibe un post de iniciar el juego, un jugador se ha logueado */
 function startGame(){
   gameRunning = true;
   console.log("Starting game execution");
@@ -46,123 +198,9 @@ function startGame(){
       ballX =widthGame/2;
       ballY =heightGame/2;
       playerX =widthGame/2;
-
       ballSpeed =200;
-  
-  gameLoop = setInterval(() => {
-    try{
-      // console.log("Game Execution, calculating ball movement...");
 
-      if(fps < 1){
-        return;
-      }
-      let boardWidth = widthGame;
-      let boardHeight = heightGame;
-
-      // Move ball
-      let ballNextX = ballX;
-      let ballNextY = ballY;
-      switch (ballDirection) {
-        case "upRight": 
-        ballNextX = ballX + ballSpeed / fps;
-        ballNextY = ballY - ballSpeed / fps;
-        break;
-      case "upLeft": 
-          ballNextX = ballX - ballSpeed / fps;
-          ballNextY = ballY - ballSpeed / fps;
-          break;
-      case "downRight": 
-          ballNextX = ballX + ballSpeed / fps;
-          ballNextY = ballY + ballSpeed / fps;
-          break;
-      case "downLeft": 
-          ballNextX = ballX - ballSpeed / fps;
-          ballNextY = ballY + ballSpeed / fps;
-          break;
-      }
-
-      // Check ball collision with board sides
-      const lineBall = [ [ballX, ballY], [ballNextX, ballNextY] ];
-
-      const lineBoardLeft = [ [borderSize, 0], [borderSize, boardHeight] ];
-      const intersectionLeft = findIntersection(lineBall, lineBoardLeft);
-
-      const boardMaxX = boardWidth - borderSize;
-      const lineBoardRight = [ [boardMaxX, 0], [boardMaxX, boardHeight] ];
-      const intersectionRight = findIntersection(lineBall, lineBoardRight);
-
-      const lineBoardTop = [ [0, borderSize], [boardWidth, borderSize] ];
-      const intersectionTop = findIntersection(lineBall, lineBoardTop);
-
-      if (intersectionLeft != null){
-        switch (ballDirection) {
-          case "upLeft": 
-              ballDirection = "upRight";
-              break;
-          case "downLeft": 
-              ballDirection = "downRight";
-              break;
-        }
-        ballX = intersectionLeft[0] +1;
-        ballY = intersectionLeft[1];
-      } else if (intersectionRight != null){
-        switch (ballDirection) {
-          case "upRight": 
-              ballDirection = "upLeft";
-              break;
-          case "downRight": 
-              ballDirection = "downLeft";
-              break;
-        }
-        ballX = intersectionRight[0] -1;
-        ballY = intersectionRight[1];
-      } else if (intersectionTop != null){
-        switch (ballDirection) {
-          case "upRight": 
-              ballDirection = "downRight"; 
-              break;
-          case "upLeft": 
-              ballDirection = "downLeft"; 
-              break;
-        }
-        ballX = intersectionTop[0];
-        ballY = intersectionTop[1] + 1;
-      } else {
-        if (ballNextY > boardHeight){
-          gameStatus = "gameOver";
-        } else {
-          ballX = ballNextX;
-          ballY = ballNextY;
-        }
-      }
-
-      // Check ball collision with player
-      const linePlayer = [[playerX - playerHalf, playerY], [playerX + playerHalf, playerY]];
-      const intersectionPlayer = findIntersection(lineBall, linePlayer);
-
-      if(intersectionPlayer != null){
-        switch (ballDirection){
-          case "downRight":
-            ballDirection = "upRight";
-            break;
-          case "downLeft":
-            ballDirection = "upLeft";
-            break;
-        }
-        ballX = intersectionPlayer[0];
-        ballY = intersectionPlayer[1] - 1;
-        playerPoints = playerPoints + 1;
-        ballSpeed = ballSpeed + ballSpeedIncrement;
-        playerSpeed = playerSpeed + playerSpeedIncrement;
-      }
-
-      playerY = heightGame - playerHeight - borderSize *2;
-    }catch(err){
-      console.log(err);
-    }
-
-
-  }, loopInterval);
+      gameLoop();
 }
 
 function findIntersection(lineA, lineB){
@@ -231,6 +269,10 @@ function findIntersection(lineA, lineB){
   return result;
 }
 
+function returnBallInfo(){
+  
+}
+
 // Wait 'ms' milliseconds
 function wait (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -256,12 +298,6 @@ const WebSocket = require('ws')
 const wss = new WebSocket.Server({ server: httpServer })
 const socketsClients = new Map()
 console.log(`Listening for WebSocket queries on ${port}`)
-
-function stopLoop(){
-  gameRunning = false;
-  console.log("Stopping game execution");
-  clearInterval(gameLoop);
-}
 
 // What to do when a websocket client connects
 wss.on('connection', (ws) => {
@@ -297,11 +333,24 @@ wss.on('connection', (ws) => {
     if(messageAsObject.type == "stopGame"){
       stopLoop();
     }
+    if(messageAsObject.type == "requestingBallInfo"){
+      stopLoop();
+    }
 
     var rst = { type: "answer", message: numberRandomAnswer }
     console.log("Will respond " +JSON.stringify(rst));
     ws.send(JSON.stringify(rst));
   })
 })
+
+// Send a message to all websocket clients
+async function broadcast (obj) {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      var messageAsString = JSON.stringify(obj)
+      client.send(messageAsString)
+    }
+  })
+}
 
 
