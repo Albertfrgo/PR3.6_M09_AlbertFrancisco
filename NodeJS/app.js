@@ -162,7 +162,9 @@ function gameLoop() {
         }
 
         // Cridar aquí la funció que fa un broadcast amb les dades del joc a tots els clients
-        var rst = { type: "ballInfoBroadcast", message: "ball info" }
+        var ballInfo = { x: ballX, y: ballY, size: ballSize, direction: ballDirection, speed: ballSpeed };
+        console.log("Broadcasting ball info: " + JSON.stringify(ballInfo));
+        var rst = { type: "ballInfoBroadcast", message: ballInfo };
         broadcast(rst)
     }
 
