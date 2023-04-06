@@ -249,8 +249,8 @@ function gameLoop() {
             player2_Points = player2_Points + 1;
             ballSpeed = ballSpeed + ballSpeedIncrement;
             player2_Speed = player2_Speed + player2_SpeedIncrement;
-            player2_X = player2_Width + 130;
           }
+          player2_X = player2_Width + 130;
     
         }catch(err){
           console.log(err);
@@ -260,7 +260,8 @@ function gameLoop() {
         var gameInfo = { ballX: ballX, ballY: ballY, ballSize: ballSize,
          player1_X: player1_X, player1_Y: player1_Y, player1_Height: player1_Height, player1_Points: player1_Points,
          player2_X: player2_X, player2_Y: player2_Y, player2_Height: player2_Height, player2_Points: player2_Points,};
-        var rst = { type: "gameInfoBroadcast", message: gameInfo };
+        var rst = { type: "gameInfoBroadcast", gameInfo: gameInfo };
+        console.log(rst);
         broadcast(rst)
     }
 
@@ -292,7 +293,7 @@ function stopLoop(){
   ballY =heightGame/2;
   player1_Y = cnvHeight / 2;
   player2_Y = heightGame / 2;
-  ballSpeed = 20;
+  ballSpeed = 100;
 }
 
 /* Funcion que es llamada cuando se recibe un post de iniciar el juego, un jugador se ha logueado */
@@ -304,7 +305,7 @@ function startGame(){
       ballY =heightGame/2;
       player1_Y = cnvHeight / 2;
       player2_Y = cnvHeight / 2;
-      ballSpeed =20;
+      ballSpeed =100;
 
       gameLoop();
 }
@@ -423,6 +424,8 @@ wss.on('connection', (ws) => {
   clientNumber++;
   socketsClients.set(ws, metadata)
 
+  ws.send(JSON.stringify({type: "infoConnection", clientNumber: metadata.clientNumber}))
+
   // What to do when a client is disconnected
   ws.on("close", () => {
     socketsClients.delete(ws)
@@ -445,7 +448,7 @@ wss.on('connection', (ws) => {
       // startGame();
       var rst = { type: "answer", message: "client "+metadata.clientNumber + " is ready to start" }
       if(clientNumber == 2){
-        console.log("Start game *****");
+        console.log("Start game");
         startGame();
       }
       var rst = { type: "answer", message: "Game started" }

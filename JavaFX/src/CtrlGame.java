@@ -1,6 +1,8 @@
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.json.JSONObject;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -29,6 +31,23 @@ public class CtrlGame implements Initializable {
             updateCanvasSize();
         });
     }
+
+    /* Funciones para pasar info desde el webSocket a la logica del juego
+     * hacen este recorrido: Main -> CtrlGame -> CtrlGameCanvas
+     */
+    public void setClientNumber(int clNumber){
+        ctrlCanvas.setClientNumber(clNumber);
+    }
+
+    public void updateParameters(JSONObject gameInfo){
+        ctrlCanvas.updateParameters(gameInfo);
+    }
+
+    public void showBroadcastedInfo(String info){
+        ctrlCanvas.showBroadcastedInfo(info);
+    }
+
+    /* Fin funciones de transferencia datos */
 
     public void drawingStart () {
         ctrlCanvas.start(canvas);

@@ -40,6 +40,9 @@ public class CtrlGameCanvas {
 
     private long currentTimeMillis1;
     private long currentTimeMillis2;
+
+    private int clientNumber;
+    private String infoBroadcasted;
     
     public CtrlGameCanvas () { }
 
@@ -94,6 +97,30 @@ public class CtrlGameCanvas {
     public void stop () {
         animationTimer.stop();
     }
+
+    /* Funcion para mostrar el num de cliente asignado por el server */
+    public void setClientNumber(int clNumber){
+        this.clientNumber =clNumber;
+    }
+
+    /* Funcion de prueba para ir recibiendo la informacion actualizada */
+    public void updateParameters(JSONObject gameInfo){
+        this.ballX = gameInfo.getDouble("ballX");
+        this.ballY = gameInfo.getDouble("ballY");
+        if(clientNumber ==0){
+            this.playerY = gameInfo.getDouble("player1_Y");
+            this.playerX = gameInfo.getDouble("player1_X");
+        }else if(clientNumber ==1){
+            this.playerY = gameInfo.getDouble("player2_Y");
+            this.playerX = gameInfo.getDouble("player2_X");
+        }
+    }
+
+    public void showBroadcastedInfo(String info){
+        this.infoBroadcasted = info;
+    }
+
+    /* Fin funciones de transferencia datos */
 
     // Animar
     private void run(double fps) {
@@ -174,6 +201,34 @@ public class CtrlGameCanvas {
         gc.setFont(new Font("Arial", 20));
         String pointsText = "Points: " + playerPoints;
         drawText(gc, pointsText, cnv.getWidth()/2 - 20, 20, "right");
+
+        /* Dibujos de letras para visualizar parametros, 
+         * FUNCION TESTEO
+         */
+
+        // Texto que muestra el numero de cliente asignado por el server,
+        // la letra sera mas pequeña y translucida
+        gc.setGlobalAlpha(0.66);
+        gc.setFont(new Font("Arial", 14));
+        String numClientText = "Client Number: " + clientNumber;
+        drawText(gc, numClientText, cnv.getWidth()/2 - 200, 50, "left");
+
+        // Texto que nos muestra los parametros del juego en el cliente
+        String gameClientParameters = "in Client: " 
+                                   +"\nPlayerX:             "+playerX
+                                   +"\nPlayerY:             "+playerY
+                                   +"\nBallX:                 "+ballX
+                                   +"\nBallY:                 "+ballY
+                                   +"\nBallSpeed:         "+ballSpeed
+                                   +"\nPlayerSpeed:     "+playerSpeed
+                                   +"\nPlayerDirection: "+playerDirection;
+        drawText(gc, gameClientParameters, cnv.getWidth()/2 - 200, 100, "left");
+
+        // Texto que nos muestra los parametros del juego que envia el servidor, string enviado a pelo desde el server
+        drawText(gc, ("Broadcasted: "+infoBroadcasted), cnv.getWidth()/2 - 200, 250, "left");
+        gc.setGlobalAlpha(1);
+
+
 
         // Draw game over text
         if (gameStatus.equals("gameOver")) {

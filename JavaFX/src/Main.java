@@ -67,6 +67,14 @@ public class Main extends Application {
                     */
                     JSONObject msgObj = new JSONObject(response);
                     System.out.println("The answer is" +msgObj.toString());
+                    if(msgObj.getString("type").equals("infoConnection")){
+                        ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
+                    }else if (msgObj.getString("type").equals("gameInfoBroadcast")){
+                        ctrlGame.updateParameters(msgObj.getJSONObject("gameInfo"));
+                        String jsonString = msgObj.getJSONObject("gameInfo").toString();
+                        String formattedJsonString = jsonString.replace(",", ",\n");
+                        ctrlGame.showBroadcastedInfo(formattedJsonString);
+                    }
 
                 });
             });
