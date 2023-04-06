@@ -18,9 +18,9 @@ let gameRunning = false;
 let player1_Points = 0;
 let player1_X;
 let player1_Y;
-const player1_Width = 200;
-const player1_Half = player1_Width / 2;
-const player1_Height = 5;
+const player1_Width = 5;
+const player1_Height = 200;
+const player1_Half = player1_Height / 2;
 let player1_Speed = 250;
 const player1_SpeedIncrement = 15;
 let player1_Direction = "none";
@@ -28,9 +28,9 @@ let player1_Direction = "none";
 let player2_Points = 0;
 let player2_X;
 let player2_Y;
-const player2_Width = 200;
-const player2_Half = player2_Width / 2;
-const player2_Height = 5;
+const player2_Width = 5;
+const player2_Height = 200;
+const player2_Half = player2_Height / 2;
 let player2_Speed = 250;
 const player2_SpeedIncrement = 15;
 let player2_Direction = "none";
@@ -45,6 +45,7 @@ let ballDirection = "upRight";
 
 const widthGame = 800;
 const heightGame = 600;
+const cnvHeight=450;
 let fps =60;
 
 let currentFPS =60;
@@ -81,42 +82,47 @@ function gameLoop() {
 
           // Move player 1
           switch (player1_Direction) {
-            case "right":
-              player1_X = player1_X + player1_Speed / fps;
+            case "up":
+              player1_Y = player1_Y + player1_Speed / fps; 
               break;
-            case "left":
-              player1_X = player1_X - player1_Speed / fps;
+            case "down":
+              player1_Y = player1_Y - player1_Speed / fps; 
               break;
           }
 
           // Move player 2
           switch (player2_Direction) {
             case "right":
-              player2_X = player2_X + player2_Speed / fps;
+              player2_Y = player2_Y + player2_Speed / fps;
               break;
             case "left":
-              player2_X = player2_X - player2_Speed / fps;
+              player2_Y = player2_Y - player2_Speed / fps;
               break;
           }
 
           // Keep player 1 in bounds
-          const player1_MinX = player1_Half;
-          const player1_MaxX = boardWidth - player1_Half;
+          const player1_MinY = 5+borderSize;
+          const player1_MaxY = 561-player1_Half*2-5-borderSize;
+          if (player1_Y < player1_MinY) {
 
-          if (player1_X < player1_MinX){
-            player1_X = player1_MinX;
-          } else if (player1_X > player1_MaxX){
-            player1_X = player1_MaxX;
+            player1_Y = player1_MinY;
+
+          } else if (player1_Y > player1_MaxY) {
+
+            player1_Y = player1_MaxY;
           }
 
-          // Keep player 2 in bounds
-          const player2_MinX = player2_Half;
-          const player2_MaxX = boardWidth - player2_Half;
+          // // Keep player 2 in bounds
+          const player2_MinY = 5+borderSize;
+          const player2_MaxY = 561-player2_Half*2-5-borderSize;
 
-          if (player2_X < player2_MinX){
-            player2_X = player2_MinX;
-          } else if (player2_X > player2_MaxX){
-            player2_X = player2_MaxX;
+          if (player2_Y < player2_MinY) {
+
+            player2_Y = player2_MinY;
+
+          } else if (player2_Y > player2_MaxY) {
+
+            player2_Y = player2_MaxY;
           }
 
           /* 
@@ -222,9 +228,9 @@ function gameLoop() {
             ballSpeed = ballSpeed + ballSpeedIncrement;
             player1_Speed = player1_Speed + player1_SpeedIncrement;
           }
-    
-          player1_Y = heightGame - player1_Height - borderSize *2;
 
+          player1_X = widthGame - player1_Width - 10 + 80;
+    
           /* Colision con el jugador 2 */
           const line_Player2 = [[player2_X - player2_Half, player2_Y], [player2_X + player2_Half, player2_Y]];
           const intersection_Player2 = findIntersection(lineBall, line_Player2);
@@ -243,9 +249,9 @@ function gameLoop() {
             player2_Points = player2_Points + 1;
             ballSpeed = ballSpeed + ballSpeedIncrement;
             player2_Speed = player2_Speed + player2_SpeedIncrement;
+            player2_X = player2_Width + 130;
           }
     
-          player2_Y = heightGame - player2_Height - borderSize *2;
         }catch(err){
           console.log(err);
         }
@@ -284,8 +290,8 @@ function stopLoop(){
   // Resetting ball and players positions
   ballX =widthGame/2;
   ballY =heightGame/2;
-  player1_X =widthGame/2;
-  player2_X =widthGame/2;
+  player1_Y = cnvHeight / 2;
+  player2_Y = heightGame / 2;
   ballSpeed = 20;
 }
 
@@ -296,8 +302,8 @@ function startGame(){
       // Set initial positions
       ballX =widthGame/2;
       ballY =heightGame/2;
-      player1_X =widthGame/2;
-      player2_X =widthGame/2;
+      player1_Y = cnvHeight / 2;
+      player2_Y = cnvHeight / 2;
       ballSpeed =20;
 
       gameLoop();
@@ -460,21 +466,22 @@ wss.on('connection', (ws) => {
     indicando la pos X e Y */
     if(messageAsObject.type == "movementInfo"){
       if((gameRunning == true)){
-        if(metadata.clientNumber == 1){
+        console.log(metadata.clientNumber)
+        if(metadata.clientNumber == 0){
           // sacamos del webSocket la informacion, actualizamos variables de player1
-          if(messageAsObject.direction == "left"){
-            player1_Direction = "left";
-          }else if(messageAsObject.direction == "right"){
-            player1_Direction = "right";
+          if(messageAsObject.direction == "up"){
+            player1_Direction = "up";
+          }else if(messageAsObject.direction == "down"){
+            player1_Direction = "down";
           }else if(messageAsObject.direction == "none"){
             player1_Direction = "none";
           }
-        }else if(metadata.clientNumber == 2){
+        }else if(metadata.clientNumber == 1){
           // sacamos del webSocket la informacion, actualizamos variables de player2
-          if(messageAsObject.direction == "left"){
-            player2_Direction = "left";
-          }else if(messageAsObject.direction == "right"){
-            player2_Direction = "right";
+          if(messageAsObject.direction == "up"){
+            player2_Direction = "up";
+          }else if(messageAsObject.direction == "down"){
+            player2_Direction = "down";
           }else if(messageAsObject.direction == "none"){
             player2_Direction = "none";
           }

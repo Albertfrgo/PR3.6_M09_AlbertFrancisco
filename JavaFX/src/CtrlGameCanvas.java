@@ -23,9 +23,9 @@ public class CtrlGameCanvas {
     private int playerPoints = 0;
     private double playerX = Double.POSITIVE_INFINITY;
     private double playerY = Double.POSITIVE_INFINITY;
-    private final double playerWidth = 200;
-    private final double playerHalf = playerWidth / 2;
-    private final double playerHeight = 5;
+    private final double playerWidth = 5;
+    private final double playerHeight = 200;
+    private final double playerHalf = playerHeight / 2;
     private double playerSpeed = 250;
     private final double playerSpeedIncrement = 15;
     public String playerDirection = "none";
@@ -83,7 +83,7 @@ public class CtrlGameCanvas {
         // Set initial positions
         ballX = cnv.getWidth() / 2;
         ballY = cnv.getHeight() / 2;
-        playerX = cnv.getWidth() / 2;
+        playerY = cnv.getHeight() / 2;
 
         // Init drawing bucle
         animationTimer = new UtilsFps(this::run, this::draw);
@@ -119,30 +119,30 @@ public class CtrlGameCanvas {
         // final double boardWidth = 400;
         // final double boardHeight = 300;
 
-        // Move player
-        switch (playerDirection) {
-            case "right":
-                playerX = playerX + playerSpeed / fps; 
-                break;
-            case "left":
-                playerX = playerX - playerSpeed / fps;
-                break;
-        }
+        // // Move player
+        // switch (playerDirection) {
+        //     case "up":
+        //         playerY = playerY + playerSpeed / fps; 
+        //         break;
+        //     case "down":
+        //         playerY = playerY - playerSpeed / fps;
+        //         break;
+        // }
 
         // Keep player in bounds
-        final double playerMinX = playerHalf;
-        final double playerMaxX = boardWidth - playerHalf;
+        final double playerMinY = 5+borderSize;
+        final double playerMaxY = boardHeight-playerHalf*2-5-borderSize;
 
-        if (playerX < playerMinX) {
+        if (playerY < playerMinY) {
 
-            playerX = playerMinX;
+            playerY = playerMinY;
 
-        } else if (playerX > playerMaxX) {
+        } else if (playerY > playerMaxY) {
 
-            playerX = playerMaxX;
+            playerY = playerMaxY;
         }
         // Set player Y position
-        playerY = cnv.getHeight() - playerHeight - 10;
+        playerX = cnv.getWidth() - playerWidth - 10 + 80;
     }
 
     // Dibuixar
@@ -160,7 +160,7 @@ public class CtrlGameCanvas {
 
         // Draw player
         gc.setStroke(Color.GREEN);
-        gc.setLineWidth(playerHeight);
+        gc.setLineWidth(playerWidth);
         gc.strokeRect(playerX - playerHalf, playerY, playerWidth, playerHeight);
         // gc.setLineWidth(playerHeight);
         // gc.strokeRect(400 - playerHalf, 400, playerWidth, playerHeight);
