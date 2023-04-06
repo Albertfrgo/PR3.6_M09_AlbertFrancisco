@@ -4,24 +4,36 @@ const url = require('url')
 const post = require('./post.js')
 const { v4: uuidv4 } = require('uuid')
 
-/* De momento el servidor lo estoy haciendo para que funcione con un solo jugador
-En el servidor se calcula el movimiento de la bola, si hay choque entre la bola y el jugador
-y recibe del jugador la posición de este (el cliente lo movera) */
+/* De momento el servidor lo estoy haciendo para que funcione dos jugadores
+En el servidor se calcula el movimiento de la bola, si hay choque entre la bola y uno de los jugadores,
+el movimiento de os jugadores (las palas) es informacion que ira recibiendo de los clientes, 
+para calcular el servidor internamente todo el modelo */
 
 /* Variables para tener un modelo completo del juego */
+/* Tendremos una bola y Player1, el primero que se conecte, y Player2, segundo */
 
 let borderSize =5;
 let gameRunning = false;
 
-let playerPoints = 0;
-let playerX;
-let playerY;
-const playerWidth = 200;
-const playerHalf = playerWidth / 2;
-const playerHeight = 5;
-let playerSpeed = 250;
-const playerSpeedIncrement = 15;
-let playerDirection = "none";
+let player1_Points = 0;
+let player1_X;
+let player1_Y;
+const player1_Width = 200;
+const player1_Half = player1_Width / 2;
+const player1_Height = 5;
+let player1_Speed = 250;
+const player1_SpeedIncrement = 15;
+let player1_Direction = "none";
+
+let player2_Points = 0;
+let player2_X;
+let player2_Y;
+const player2_Width = 200;
+const player2_Half = player2_Width / 2;
+const player2_Height = 5;
+let player2_Speed = 250;
+const player2_SpeedIncrement = 15;
+let player2_Direction = "none";
 
 let ballX;
 let ballY;
@@ -40,9 +52,11 @@ let TARGET_MS = 1000 / fps;
 let frameCount;
 let fpsStartTime;
 
+let clientNumber = 0;
+
 /* Funcion que se ejecuta cada cierto tiempo en donde se calculara toda la logica del juego
 movimiento de la pelota y colision pelota-jugador, la posicion del jugador la ira recibiendo de
-la info que envia el websocket */
+la info que se envia por el websocket */
 function gameLoop() {
   try{
     const startTime = Date.now();
@@ -51,14 +65,65 @@ function gameLoop() {
         // Cridar aquí la funció que actualitza el joc (segons currentFPS)
 
         try{
-          console.log("Game Execution, calculating ball movement...");
+          // console.log("Game Execution, calculating ball and players positions...");
     
           if(fps < 1){
             return;
           }
           let boardWidth = widthGame;
           let boardHeight = heightGame;
-    
+
+          /* 
+          ¡Parte que podemos dejar a cada cliente o al server!
+          Movimiento de los jugadores, del websocket solo recibiria si playerDirection es 
+          none, no se mueve, left o right, y en funcion de eso moveria el jugador 
+          */
+
+          // Move player 1
+          switch (player1_Direction) {
+            case "right":
+              player1_X = player1_X + player1_Speed / fps;
+              break;
+            case "left":
+              player1_X = player1_X - player1_Speed / fps;
+              break;
+          }
+
+          // Move player 2
+          switch (player2_Direction) {
+            case "right":
+              player2_X = player2_X + player2_Speed / fps;
+              break;
+            case "left":
+              player2_X = player2_X - player2_Speed / fps;
+              break;
+          }
+
+          // Keep player 1 in bounds
+          const player1_MinX = player1_Half;
+          const player1_MaxX = boardWidth - player1_Half;
+
+          if (player1_X < player1_MinX){
+            player1_X = player1_MinX;
+          } else if (player1_X > player1_MaxX){
+            player1_X = player1_MaxX;
+          }
+
+          // Keep player 2 in bounds
+          const player2_MinX = player2_Half;
+          const player2_MaxX = boardWidth - player2_Half;
+
+          if (player2_X < player2_MinX){
+            player2_X = player2_MinX;
+          } else if (player2_X > player2_MaxX){
+            player2_X = player2_MaxX;
+          }
+
+          /* 
+          Fin movimiento jugadores, el resto
+          lo calculara el servidor obligatoriamente
+           */
+              
           // Move ball
           let ballNextX = ballX;
           let ballNextY = ballY;
@@ -137,10 +202,12 @@ function gameLoop() {
           }
     
           // Check ball collision with player
-          const linePlayer = [[playerX - playerHalf, playerY], [playerX + playerHalf, playerY]];
-          const intersectionPlayer = findIntersection(lineBall, linePlayer);
+
+          /* Colision con el jugador 1 */
+          const line_Player1 = [[player1_X - player1_Half, player1_Y], [player1_X + player1_Half, player1_Y]];
+          const intersection_Player1 = findIntersection(lineBall, line_Player1);
     
-          if(intersectionPlayer != null){
+          if(intersection_Player1 != null){
             switch (ballDirection){
               case "downRight":
                 ballDirection = "upRight";
@@ -149,22 +216,45 @@ function gameLoop() {
                 ballDirection = "upLeft";
                 break;
             }
-            ballX = intersectionPlayer[0];
-            ballY = intersectionPlayer[1] - 1;
-            playerPoints = playerPoints + 1;
+            ballX = intersection_Player1[0];
+            ballY = intersection_Player1[1] - 1;
+            player1_Points = player1_Points + 1;
             ballSpeed = ballSpeed + ballSpeedIncrement;
-            playerSpeed = playerSpeed + playerSpeedIncrement;
+            player1_Speed = player1_Speed + player1_SpeedIncrement;
           }
     
-          playerY = heightGame - playerHeight - borderSize *2;
+          player1_Y = heightGame - player1_Height - borderSize *2;
+
+          /* Colision con el jugador 2 */
+          const line_Player2 = [[player2_X - player2_Half, player2_Y], [player2_X + player2_Half, player2_Y]];
+          const intersection_Player2 = findIntersection(lineBall, line_Player2);
+  
+          if(intersection_Player2 != null){
+            switch (ballDirection){
+              case "downRight":
+                ballDirection = "upRight";
+                break;
+              case "downLeft":
+                ballDirection = "upLeft";
+                break;
+            }
+            ballX = intersection_Player2[0];
+            ballY = intersection_Player2[1] - 1;
+            player2_Points = player2_Points + 1;
+            ballSpeed = ballSpeed + ballSpeedIncrement;
+            player2_Speed = player2_Speed + player2_SpeedIncrement;
+          }
+    
+          player2_Y = heightGame - player2_Height - borderSize *2;
         }catch(err){
           console.log(err);
         }
 
         // Cridar aquí la funció que fa un broadcast amb les dades del joc a tots els clients
-        var ballInfo = { x: ballX, y: ballY, size: ballSize, direction: ballDirection, speed: ballSpeed };
-        console.log("Broadcasting ball info: " + JSON.stringify(ballInfo));
-        var rst = { type: "ballInfoBroadcast", message: ballInfo };
+        var gameInfo = { ballX: ballX, ballY: ballY, ballSize: ballSize,
+         player1_X: player1_X, player1_Y: player1_Y, player1_Height: player1_Height, player1_Points: player1_Points,
+         player2_X: player2_X, player2_Y: player2_Y, player2_Height: player2_Height, player2_Points: player2_Points,};
+        var rst = { type: "gameInfoBroadcast", message: gameInfo };
         broadcast(rst)
     }
 
@@ -190,6 +280,13 @@ function gameLoop() {
 function stopLoop(){
   gameRunning = false;
   console.log("Stopping game execution");
+
+  // Resetting ball and players positions
+  ballX =widthGame/2;
+  ballY =heightGame/2;
+  player1_X =widthGame/2;
+  player2_X =widthGame/2;
+  ballSpeed = 20;
 }
 
 /* Funcion que es llamada cuando se recibe un post de iniciar el juego, un jugador se ha logueado */
@@ -199,8 +296,9 @@ function startGame(){
       // Set initial positions
       ballX =widthGame/2;
       ballY =heightGame/2;
-      playerX =widthGame/2;
-      ballSpeed =200;
+      player1_X =widthGame/2;
+      player2_X =widthGame/2;
+      ballSpeed =20;
 
       gameLoop();
 }
@@ -305,22 +403,29 @@ console.log(`Listening for WebSocket queries on ${port}`)
 wss.on('connection', (ws) => {
 
   console.log("Client connected")
+  console.log('socketsClients Map:');
+  for (const [key, value] of socketsClients.entries()) {
+    console.log(`  ${key} => ${value}`);
+  }
 
   // Add client to the clients list
+
+  /* Con client number podemos contar cuantos clientes se han identificado */
   const id = uuidv4()
   const color = Math.floor(Math.random() * 360)
-  const metadata = { id, color }
+  const metadata = { id, color, clientNumber}
+  clientNumber++;
   socketsClients.set(ws, metadata)
 
   // What to do when a client is disconnected
   ws.on("close", () => {
     socketsClients.delete(ws)
+    clientNumber--;
   })
 
   // What to do when a client message is received
   ws.on('message', (bufferedMessage) => {
     console.log("Message received from client: " + bufferedMessage)
-    let numberRandomAnswer = Math.floor((Math.random() * 10) + 1);
 
     var messageAsString = bufferedMessage.toString()
     var messageAsObject = {}
@@ -328,25 +433,64 @@ wss.on('connection', (ws) => {
     try { messageAsObject = JSON.parse(messageAsString) } 
     catch (e) { console.log("Could not parse bufferedMessage from WS message") }
 
-    /* Empieza el juego y llamara a la funcion correspondiente */
+    /* El mensaje start game lo envia un cliente cuando se ha logeado y esta listo para empezar,
+    para que empieze el juego hacen falta dos clientes listos */
     if(messageAsObject.type == "startGame"){
-      startGame();
-    }
-    if(messageAsObject.type == "stopGame"){
-      stopLoop();
-    }
-    if(messageAsObject.type == "requestingBallInfo"){
-      stopLoop();
+      // startGame();
+      var rst = { type: "answer", message: "client "+metadata.clientNumber + " is ready to start" }
+      if(clientNumber == 2){
+        console.log("Start game *****");
+        startGame();
+      }
+      var rst = { type: "answer", message: "Game started" }
     }
 
-    var rst = { type: "answer", message: numberRandomAnswer }
-    console.log("Will respond " +JSON.stringify(rst));
+    /* El mensaje stopGame seria el mensaje que aparece por ejemplo cuando un cliente cierra
+    la ventana, se va del juego, y el bucle deberia detenerse, aparte de detener el bucle,
+    podemos manejar la logica para atorgar la victoria */
+    if(messageAsObject.type == "stopGame"){
+      if(gameRunning == true && (metadata.clientNumber == 1 || metadata.clientNumber == 2)){
+        stopLoop();
+      }
+      var rst = { type: "answer", message: "Game stopped" }
+    }
+
+    /* Una vez haya empezado el juego, los clientes iran enviando info de su movimiento,
+    podemos hacer que solo indiquen hacia que direccion mueven las palas o que tambien manejen ellos el movimiento
+    indicando la pos X e Y */
+    if(messageAsObject.type == "movementInfo"){
+      if((gameRunning == true)){
+        if(metadata.clientNumber == 1){
+          // sacamos del webSocket la informacion, actualizamos variables de player1
+          if(messageAsObject.direction == "left"){
+            player1_Direction = "left";
+          }else if(messageAsObject.direction == "right"){
+            player1_Direction = "right";
+          }else if(messageAsObject.direction == "none"){
+            player1_Direction = "none";
+          }
+        }else if(metadata.clientNumber == 2){
+          // sacamos del webSocket la informacion, actualizamos variables de player2
+          if(messageAsObject.direction == "left"){
+            player2_Direction = "left";
+          }else if(messageAsObject.direction == "right"){
+            player2_Direction = "right";
+          }else if(messageAsObject.direction == "none"){
+            player2_Direction = "none";
+          }
+          }
+        }
+        rst = { type: "answer", message: "Movement info received", clientNumber: metadata.clientNumber }
+      }
+
+    // console.log("Will respond " +JSON.stringify(rst));
     ws.send(JSON.stringify(rst));
   })
 })
 
 // Send a message to all websocket clients
 async function broadcast (obj) {
+  // console.log("Broadcasting message to all clients: " + JSON.stringify(obj))
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
       var messageAsString = JSON.stringify(obj)

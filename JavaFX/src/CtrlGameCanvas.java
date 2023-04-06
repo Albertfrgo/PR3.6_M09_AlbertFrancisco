@@ -55,12 +55,10 @@ public class CtrlGameCanvas {
     }
 
     private void sendMessage(){
-        String message = "test Pong";
-
         JSONObject objJson = new JSONObject("{}");
-        String type = "test Message";
+        String type = "movementInfo";
         objJson.put("type", type);
-        objJson.put("message", message);
+        objJson.put("direction",  playerDirection);
 
         Main.socketClient.safeSend(objJson.toString());
         System.out.println("Send WebSocket: " + objJson.toString());
@@ -106,7 +104,7 @@ public class CtrlGameCanvas {
             currentTimeMillis2 = System.currentTimeMillis();
             /* De momento tiene dos variable que cuentan tiempo en ms para que cada 2000ms aprox, 
              * printe un mensaje */
-            if ((currentTimeMillis2 -currentTimeMillis1) >2000) {
+            if ((currentTimeMillis2 -currentTimeMillis1) >1000) {
                 currentTimeMillis1 = currentTimeMillis2;
                 System.out.println("Running " + LocalTime.now().toString());
                 sendMessage();
