@@ -30,6 +30,16 @@ public class CtrlGameCanvas {
     private final double playerSpeedIncrement = 15;
     public String playerDirection = "none";
 
+    private int playerPoints2 = 0;
+    private double playerX2 = Double.POSITIVE_INFINITY;
+    private double playerY2 = Double.POSITIVE_INFINITY;
+    private final double playerWidth2 = 5;
+    private final double playerHeight2 = 200;
+    private final double playerHalf2 = playerHeight2 / 2;
+    private double playerSpeed2 = 250;
+    private final double playerSpeedIncrement2 = 15;
+    public String playerDirection2 = "none";
+
     private double ballX = Double.POSITIVE_INFINITY;
     private double ballY = Double.POSITIVE_INFINITY;
     private final double ballSize = 15;
@@ -67,14 +77,6 @@ public class CtrlGameCanvas {
         System.out.println("Send WebSocket: " + objJson.toString());
     }
 
-    private void requestInfoBall(){
-        JSONObject objJson = new JSONObject("{}");
-        String message = "requestingBallInfo";
-        String type = "requestingBallInfo";
-        objJson.put("type", type);
-        objJson.put("message", message);
-    }
-
     // Iniciar el context i bucle de dibuix
     public void start (Canvas canvas) {
 
@@ -110,9 +112,13 @@ public class CtrlGameCanvas {
         if(clientNumber ==0){
             this.playerY = gameInfo.getDouble("player1_Y");
             this.playerX = gameInfo.getDouble("player1_X");
+            this.playerX2 = gameInfo.getDouble("player2_X");
+            this.playerY2 = gameInfo.getDouble("player2_Y");
         }else if(clientNumber ==1){
             this.playerY = gameInfo.getDouble("player2_Y");
             this.playerX = gameInfo.getDouble("player2_X");
+            this.playerX2 = gameInfo.getDouble("player1_X");
+            this.playerY2 = gameInfo.getDouble("player1_Y");
         }
     }
 
@@ -170,6 +176,7 @@ public class CtrlGameCanvas {
         }
         // Set player Y position
         playerX = cnv.getWidth() - playerWidth - 10 + 80;
+
     }
 
     // Dibuixar
@@ -189,8 +196,10 @@ public class CtrlGameCanvas {
         gc.setStroke(Color.GREEN);
         gc.setLineWidth(playerWidth);
         gc.strokeRect(playerX - playerHalf, playerY, playerWidth, playerHeight);
-        // gc.setLineWidth(playerHeight);
-        // gc.strokeRect(400 - playerHalf, 400, playerWidth, playerHeight);
+        gc.setLineWidth(playerHeight2);
+
+        /* Dibujar el otro jugador */
+        // gc.strokeRect(playerX2 - playerHalf2, playerY2, playerWidth2, playerHeight2);
 
         // Draw ball
         gc.setFill(Color.BLACK);
