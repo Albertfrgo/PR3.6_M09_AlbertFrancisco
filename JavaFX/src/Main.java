@@ -34,7 +34,7 @@ public class Main extends Application {
             UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
             UtilsViews.addView(getClass(), "Login", "./assets/viewLogin.fxml");
             UtilsViews.addView(getClass(), "ViewGame", "./assets/viewGame.fxml");
-            UtilsViews.addView(getClass(), "EndGame", "./assets/endGameScreen.fxml");
+            // UtilsViews.addView(getClass(), "EndGame", "./assets/endGameScreen.fxml");
             ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
             
             Scene scene = new Scene(UtilsViews.parentContainer);
@@ -67,17 +67,18 @@ public class Main extends Application {
                     * sacar la info y hacer cambios sobre el controlador de la logica de juego ctrlGame
                     */
                     JSONObject msgObj = new JSONObject(response);
-                    System.out.println("The answer is" +msgObj.toString());
+                    // System.out.println("The answer is" +msgObj.toString());
                     if(msgObj.getString("type").equals("infoConnection")){
                         ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
                     }else if (msgObj.getString("type").equals("gameInfoBroadcast")){
-
                         ctrlGame.updateParameters(msgObj.getJSONObject("gameInfo"));
                         String jsonString = msgObj.getJSONObject("gameInfo").toString();
                         String formattedJsonString = jsonString.replace(",", ",\n");
                         ctrlGame.showBroadcastedInfo(formattedJsonString);
 
-                    }
+                    }/* else if (msgObj.getString("type").equals("winnerDecided")){
+                        ctrlGame.setWinnerDecided(msgObj.getBoolean("winnerDecided"));
+                    } */
 
                 });
             });
@@ -95,7 +96,7 @@ public class Main extends Application {
         String type = "stopGame";
         objJson.put("type", type);
         Main.socketClient.safeSend(objJson.toString());
-        System.out.println("Send WebSocket: " + objJson.toString());
+        // System.out.println("Send WebSocket: " + objJson.toString());
 
         System.exit(1); // Kill all executor services
     }

@@ -9,6 +9,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class CtrlGameCanvas {
   
@@ -55,6 +57,7 @@ public class CtrlGameCanvas {
     private String infoBroadcasted;
 
     private String winnerName = "none";
+    public boolean winnerDecided = false;
     
     public CtrlGameCanvas () { }
 
@@ -76,7 +79,7 @@ public class CtrlGameCanvas {
         objJson.put("direction",  playerDirection);
 
         Main.socketClient.safeSend(objJson.toString());
-        System.out.println("Send WebSocket: " + objJson.toString());
+        // System.out.println("Send WebSocket: " + objJson.toString());
     }
 
     // Iniciar el context i bucle de dibuix
@@ -100,6 +103,7 @@ public class CtrlGameCanvas {
     // Aturar el bucle de dibuix
     public void stop () {
         animationTimer.stop();
+        System.out.println("CtrlGameCanvas: stop");
     }
 
     /* Funcion para mostrar el num de cliente asignado por el server */
@@ -112,26 +116,22 @@ public class CtrlGameCanvas {
         this.ballX = gameInfo.getDouble("ballX");
         this.ballY = gameInfo.getDouble("ballY");
         this.playerY = gameInfo.getDouble("player1_Y");
-         if(clientNumber ==0){
-            this.playerY = gameInfo.getDouble("player1_Y");
-            this.playerX = gameInfo.getDouble("player1_X");
-            this.playerX2 = gameInfo.getDouble("player2_X");
-            this.playerY2 = gameInfo.getDouble("player2_Y");
-            this.playerPoints = gameInfo.getInt("player1_Points");
-            this.playerPoints2 = gameInfo.getInt("player2_Points");
-            this.gameStatus = gameInfo.getString("gameStatus");
+        this.playerX = gameInfo.getDouble("player1_X");
+        this.playerX2 = gameInfo.getDouble("player2_X");
+        this.playerY2 = gameInfo.getDouble("player2_Y");
+        this.playerPoints = gameInfo.getInt("player1_Points");
+        this.playerPoints2 = gameInfo.getInt("player2_Points");
+        this.gameStatus = gameInfo.getString("gameStatus");
+        if(clientNumber ==0){
+            // this.winnerDecided = gameInfo.getBoolean("winnerDecided");
         }else if(clientNumber ==1){
-            this.playerY = gameInfo.getDouble("player1_Y");
-            this.playerX = gameInfo.getDouble("player1_X");
-            this.playerX2 = gameInfo.getDouble("player2_X");
-            this.playerY2 = gameInfo.getDouble("player2_Y");
-            this.playerPoints = gameInfo.getInt("player1_Points");
-            this.playerPoints2 = gameInfo.getInt("player2_Points");
-            this.gameStatus = gameInfo.getString("gameStatus");
+            // this.winnerDecided = gameInfo.getBoolean("winnerDecided");
         } 
         if(gameInfo.getString("gameStatus").equals("gameOver")){
             this.winnerName = gameInfo.getString("winnerName");
             this.gameStatus = "gameOver2";
+        }else{
+            this.winnerDecided = false;
         }
     }
 
@@ -148,8 +148,6 @@ public class CtrlGameCanvas {
          */
         if(ballSpeed > 0){
             currentTimeMillis2 = System.currentTimeMillis();
-            /* De momento tiene dos variable que cuentan tiempo en ms para que cada 2000ms aprox, 
-             * printe un mensaje */
         sendMessage();
         }
         /* Fin trozo testeo datos */
@@ -158,18 +156,6 @@ public class CtrlGameCanvas {
 
         final double boardWidth = cnv.getWidth();
         final double boardHeight = cnv.getHeight();
-        // final double boardWidth = 400;
-        // final double boardHeight = 300;
-
-        // // Move player
-        // switch (playerDirection) {
-        //     case "up":
-        //         playerY = playerY + playerSpeed / fps; 
-        //         break;
-        //     case "down":
-        //         playerY = playerY - playerSpeed / fps;
-        //         break;
-        // }
 
         // Keep player in bounds
         final double playerMinY = 5+borderSize;
@@ -190,7 +176,6 @@ public class CtrlGameCanvas {
 
     // Dibuixar
     private void draw() {
-
         // Clean drawing area
         gc.clearRect(0, 0, cnv.getWidth(), cnv.getHeight());
 
@@ -238,7 +223,7 @@ public class CtrlGameCanvas {
         gc.setGlobalAlpha(0.66);
         gc.setFont(new Font("Arial", 14));
         String numClientText = "Client Number: " + clientNumber;
-        drawText(gc, numClientText, cnv.getWidth()/2 - 200, 50, "left");
+        drawText(gc, numClientText, cnv.getWidth()/2 - 200, 25, "left");
 
         // Texto que nos muestra los parametros del juego en el cliente
         String gameClientParameters = "in Client: " 
@@ -249,31 +234,23 @@ public class CtrlGameCanvas {
                                    +"\nBallSpeed:         "+ballSpeed
                                    +"\nPlayerSpeed:     "+playerSpeed
                                    +"\nPlayerDirection: "+playerDirection;
-        drawText(gc, gameClientParameters, cnv.getWidth()/2 - 200, 100, "left");
+        drawText(gc, gameClientParameters, cnv.getWidth()/2 - 200, 75, "left");
 
         // Texto que nos muestra los parametros del juego que envia el servidor, string enviado a pelo desde el server
-        drawText(gc, ("Broadcasted: "+infoBroadcasted), cnv.getWidth()/2 - 200, 250, "left");
+        drawText(gc, ("Broadcasted: "+infoBroadcasted), cnv.getWidth()/2 - 150, 200, "left");
         gc.setGlobalAlpha(1);
 
 
 
         // Draw game over text
-        if (gameStatus.equals("gameOver2")) {
-            final double boardCenterX = cnv.getWidth() / 2;
-            final double boardCenterY = cnv.getHeight() / 2;
-
-            gc.setFill(Color.BLACK);
-
-            gc.setFont(new Font("Arial", 40));
-            drawText(gc, "GAME OVER", boardCenterX, boardCenterY - 20, "center");
-
-            gc.setFont(new Font("Arial", 20));
-            drawText(gc, "You are a loser!", boardCenterX, boardCenterY + 20, "center");
-
+        if (gameStatus.equals("gameOver2") && winnerDecided ==false) {
             /* Llamar a un metodo del main para cambiar de pantalla */
-            UtilsViews.setViewAnimating("EndGame");
+            /* UtilsViews.setViewAnimating("EndGame");
             ControllerEndGame ctrlEndGame = (ControllerEndGame) UtilsViews.getController("EndGame");
-            ctrlEndGame.setWinnerName(winnerName);
+            ctrlEndGame.setWinnerName(winnerName); */
+            CtrlGame ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
+            ctrlGame.setWinnerName(winnerName);
+            winnerDecided = true;
         }
     }
 

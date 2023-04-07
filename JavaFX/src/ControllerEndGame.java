@@ -32,13 +32,27 @@ public class ControllerEndGame implements Initializable{
     @FXML
     private Button buttonPlayAgain;
 
+    CtrlGame ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
+
     @FXML
     private void playAgain(){
         UtilsViews.setViewAnimating("ViewGame");
+
+        /* Enviar un mensaje al ws de play Again 
+         * Cuando ambos hayan mandado play again, el ws reinicia todo
+         * y vuelve a empezar el juego
+        */
+        JSONObject objJson = new JSONObject("{}");
+        String type = "playAgain";
+        objJson.put("type", type);
+
+        Main.socketClient.safeSend(objJson.toString());
     }
+
 
     public void setWinnerName(String name){
         labelWinner.setText("The winner is: "+name);
+        ctrlGame.drawingStop();
     }
 
     public void initialize(URL arg0, ResourceBundle arg1) {

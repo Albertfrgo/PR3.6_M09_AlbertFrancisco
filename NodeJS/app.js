@@ -45,6 +45,11 @@ let ballDirection = "upRight";
 
 let gameStatus;
 let winnerName;
+let player1_Ready = false;
+let player2_Ready = false;
+let player1_PlayAgain = false;
+let player2_PlayAgain = false;
+// let winnerDecided = false;
 
 const widthGame = 800;
 const heightGame = 600;
@@ -202,11 +207,15 @@ function gameLoop() {
             if (ballNextX > 784) {
                 player2_Points= player2_Points + 1;
                 if (player2_Points>=5){
+                    player1_Ready = false;
+                    player2_Ready = false;
                     winnerName = "green player";
+                    // winnerDecided = true;
                     gameStatus = "gameOver";
                     ballX = widthGame / 2;
                     ballY = heightGame / 2;
                     ballDirection="";
+                    
                 }else{
                     ballX = widthGame / 2;
                     ballY = heightGame / 2;
@@ -218,11 +227,15 @@ function gameLoop() {
             } else if(ballNextX < borderSize){
                 player1_Points = player1_Points + 1;
                 if (player1_Points>=5){
+                    player1_Ready = false;
+                    player2_Ready = false;
                     winnerName = "purple player";
+                    // winnerDecided = true;
                     gameStatus = "gameOver";
                     ballX = widthGame / 2;
                     ballY = heightGame / 2;
                     ballDirection="";
+                    
                 }else{
                     ballX = widthGame / 2;
                     ballY = heightGame / 2;
@@ -278,15 +291,12 @@ function gameLoop() {
         }
 
         // Cridar aquí la funció que fa un broadcast amb les dades del joc a tots els clients
-        /* var gameInfo = { ballX: ballX, ballY: ballY, ballSize: ballSize,
-         player1_X: player1_X, player1_Y: player1_Y, player1_Height: player1_Height, player1_Points: player1_Points,
-         player2_X: player2_X, player2_Y: player2_Y, player2_Height: player2_Height, player2_Points: player2_Points}; */
-         var gameInfo = { ballX: ballX, ballY: ballY, ballSize: ballSize,
+         var gameInfo = { ballX: ballX, ballY: ballY, ballSize: ballSize, ballSpeed: ballSpeed,
           player1_X: player1_X, player1_Y: player1_Y, player1_Height: player1_Height, player1_Points: player1_Points,
           player2_X: player2_X, player2_Y: player2_Y, player2_Height: player2_Height, player2_Points: player2_Points,
-          ballDirection: ballDirection, gameStatus: gameStatus, winnerName: winnerName};
+          ballDirection: ballDirection, gameStatus: gameStatus, winnerName: winnerName, 
+          player1_Ready: player1_Ready, player2_Ready: player2_Ready};
         var rst = { type: "gameInfoBroadcast", gameInfo: gameInfo };
-        console.log(rst);
         broadcast(rst)
     }
 
@@ -313,12 +323,15 @@ function stopLoop(){
   gameRunning = false;
   console.log("Stopping game execution");
 
+  player1_Points = 0;
+  player2_Points = 0;
+
   // Resetting ball and players positions
   ballX =widthGame/2;
   ballY =heightGame/2;
   player1_Y = cnvHeight / 2;
   player2_Y = heightGame / 2;
-  ballSpeed = 100;
+  ballSpeed = 200;
 }
 
 /* Funcion que es llamada cuando se recibe un post de iniciar el juego, un jugador se ha logueado */
@@ -330,8 +343,12 @@ function startGame(){
       ballY =heightGame/2;
       player1_Y = cnvHeight / 2;
       player2_Y = cnvHeight / 2;
-      ballSpeed =100;
+      player1_Points = 0;
+      player2_Points = 0;
+      ballSpeed =200;
       gameStatus = "playing";
+      winnerName = "";
+      // winnerDecided = false;
       ballDirection = ballDirections[Math.floor(Math.random() * 4)];
 
       gameLoop();
@@ -461,7 +478,7 @@ wss.on('connection', (ws) => {
 
   // What to do when a client message is received
   ws.on('message', (bufferedMessage) => {
-    console.log("Message received from client: " + bufferedMessage)
+    // console.log("Message received from client: " + bufferedMessage)
 
     var messageAsString = bufferedMessage.toString()
     var messageAsObject = {}
@@ -472,9 +489,16 @@ wss.on('connection', (ws) => {
     /* El mensaje start game lo envia un cliente cuando se ha logeado y esta listo para empezar,
     para que empieze el juego hacen falta dos clientes listos */
     if(messageAsObject.type == "startGame"){
-      // startGame();
       var rst = { type: "answer", message: "client "+metadata.clientNumber + " is ready to start" }
-      if(clientNumber == 2){
+      if(metadata.clientNumber == 0){
+        player1_Ready = true;
+      }
+      if(metadata.clientNumber == 1){
+        player2_Ready = true;
+      }
+      if(player1_Ready == true && player2_Ready == true){
+        player1_Ready = false;
+        player2_Ready = false;
         console.log("Start game");
         startGame();
       }
@@ -485,10 +509,8 @@ wss.on('connection', (ws) => {
     la ventana, se va del juego, y el bucle deberia detenerse, aparte de detener el bucle,
     podemos manejar la logica para atorgar la victoria */
     if(messageAsObject.type == "stopGame"){
-      if(gameRunning == true && (metadata.clientNumber == 1 || metadata.clientNumber == 2)){
+      if(gameRunning == true && (metadata.clientNumber == 0 || metadata.clientNumber == 1)){
         stopLoop();
-        player1_Points = 0;
-        player2_Points = 0;
       }
       var rst = { type: "answer", message: "Game stopped" }
     }
@@ -498,7 +520,7 @@ wss.on('connection', (ws) => {
     indicando la pos X e Y */
     if(messageAsObject.type == "movementInfo"){
       if((gameRunning == true)){
-        console.log(metadata.clientNumber)
+        // console.log(metadata.clientNumber)
         if(metadata.clientNumber == 0){
           // sacamos del webSocket la informacion, actualizamos variables de player1
           if(messageAsObject.direction == "up"){
@@ -520,6 +542,40 @@ wss.on('connection', (ws) => {
           }
         }
         rst = { type: "answer", message: "Movement info received", clientNumber: metadata.clientNumber }
+      }
+
+      /* Si un jugador quiere volver a jugar, mandara un mensaje tipo
+      playAgain, si ambos indican que quieren volver a jugar
+      el jego se para y vuelve a empezar */
+      if(messageAsObject.type == "playAgain"){
+        if(metadata.clientNumber ==0){
+          player1_Ready = true
+          console.log("Player 0 wants to play again")
+        }
+        if(metadata.clientNumber ==1){
+          player2_Ready = true
+          console.log("Player 1 wants to play again")
+        }
+        if(player1_Ready == true && player2_Ready == true && gameStatus == "gameOver"){
+          // ws.send({ type: "winnerDecided", winnerDecided: true})
+          player1_Ready = false;
+          player2_Ready = false;
+          
+          console.log("Game will start again, resetting parameters");
+
+          gameRunning = true;
+          ballX =widthGame/2;
+          ballY =heightGame/2;
+          player1_Y = cnvHeight / 2;
+          player2_Y = cnvHeight / 2;
+          player1_Points = 0;
+          player2_Points = 0;
+          ballSpeed =200;
+          gameStatus = "playing";
+          winnerName = "";
+          // winnerDecided = false;
+          ballDirection = ballDirections[Math.floor(Math.random() * 4)];
+        }
       }
 
     // console.log("Will respond " +JSON.stringify(rst));

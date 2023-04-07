@@ -81,7 +81,7 @@ public class ControllerLogin implements Initializable {
         String type = "startGame";
         objJson.put("type", type);
         Main.socketClient.safeSend(objJson.toString());
-        System.out.println("Send WebSocket: " + objJson.toString());
+        // System.out.println("Send WebSocket: " + objJson.toString());
     }
 
     @Override
