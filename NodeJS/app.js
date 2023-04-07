@@ -43,6 +43,9 @@ let ballSpeed = 0;
 const ballSpeedIncrement = 25;
 let ballDirection = "upRight";
 
+let gameStatus;
+let winnerName;
+
 const widthGame = 800;
 const heightGame = 600;
 const cnvHeight=450;
@@ -54,6 +57,8 @@ let frameCount;
 let fpsStartTime;
 
 let clientNumber = 0;
+
+let ballDirections = ["upRight","upLeft","downRight","downLeft"];
 
 /* Funcion que se ejecuta cada cierto tiempo en donde se calculara toda la logica del juego
 movimiento de la pelota y colision pelota-jugador, la posicion del jugador la ira recibiendo de
@@ -92,10 +97,10 @@ function gameLoop() {
 
           // Move player 2
           switch (player2_Direction) {
-            case "right":
+            case "up":
               player2_Y = player2_Y + player2_Speed / fps;
               break;
-            case "left":
+            case "down":
               player2_Y = player2_Y - player2_Speed / fps;
               break;
           }
@@ -153,103 +158,119 @@ function gameLoop() {
           }
     
           // Check ball collision with board sides
-          const lineBall = [ [ballX, ballY], [ballNextX, ballNextY] ];
-    
-          const lineBoardLeft = [ [borderSize, 0], [borderSize, boardHeight] ];
-          const intersectionLeft = findIntersection(lineBall, lineBoardLeft);
-    
-          const boardMaxX = boardWidth - borderSize;
-          const lineBoardRight = [ [boardMaxX, 0], [boardMaxX, boardHeight] ];
-          const intersectionRight = findIntersection(lineBall, lineBoardRight);
-    
-          const lineBoardTop = [ [0, borderSize], [boardWidth, borderSize] ];
-          const intersectionTop = findIntersection(lineBall, lineBoardTop);
-    
-          if (intersectionLeft != null){
+        const lineBall = [[ballX, ballY], [ballNextX, ballNextY]];
+
+        const  lineBoardLeft = [[borderSize, 0], [borderSize, 561]];
+        const  intersectionLeft = findIntersection(lineBall, lineBoardLeft);
+
+        const  boardMaxX = 784 - borderSize;
+        const  lineBoardRight = [[boardMaxX, 0], [boardMaxX, 561]];
+        const  intersectionRight = findIntersection(lineBall, lineBoardRight);
+
+        const  lineBoardTop = [[0, borderSize], [784, borderSize]];
+        const  intersectionTop = findIntersection(lineBall, lineBoardTop);
+        
+        const  boardMaxY = 561 - borderSize;
+        const  lineBoardBottom = [[0, boardMaxY], [784, boardMaxY]];
+        const  intersectionBottom = findIntersection(lineBall, lineBoardBottom);
+        
+        if (intersectionTop != null) {
             switch (ballDirection) {
-              case "upLeft": 
-                  ballDirection = "upRight";
-                  break;
-              case "downLeft": 
-                  ballDirection = "downRight";
-                  break;
-            }
-            ballX = intersectionLeft[0] +1;
-            ballY = intersectionLeft[1];
-          } else if (intersectionRight != null){
-            switch (ballDirection) {
-              case "upRight": 
-                  ballDirection = "upLeft";
-                  break;
-              case "downRight": 
-                  ballDirection = "downLeft";
-                  break;
-            }
-            ballX = intersectionRight[0] -1;
-            ballY = intersectionRight[1];
-          } else if (intersectionTop != null){
-            switch (ballDirection) {
-              case "upRight": 
-                  ballDirection = "downRight"; 
-                  break;
-              case "upLeft": 
-                  ballDirection = "downLeft"; 
-                  break;
+                case "upRight": 
+                    ballDirection = "downRight"; 
+                    break;
+                case "upLeft": 
+                    ballDirection = "downLeft"; 
+                    break;
             }
             ballX = intersectionTop[0];
             ballY = intersectionTop[1] + 1;
-          } else {
-            if (ballNextY > boardHeight){
-              gameStatus = "gameOver";
-            } else {
-              ballX = ballNextX;
-              ballY = ballNextY;
-            }
-          }
-    
-          // Check ball collision with player
 
-          /* Colision con el jugador 1 */
-          const line_Player1 = [[player1_X - player1_Half, player1_Y], [player1_X + player1_Half, player1_Y]];
-          const intersection_Player1 = findIntersection(lineBall, line_Player1);
-    
-          if(intersection_Player1 != null){
-            switch (ballDirection){
-              case "downRight":
-                ballDirection = "upRight";
-                break;
-              case "downLeft":
-                ballDirection = "upLeft";
-                break;
+        } else if (intersectionBottom != null) {
+            switch (ballDirection) {
+                case "downLeft": 
+                    ballDirection = "upLeft";
+                    break;
+                case "downRight": 
+                    ballDirection = "upRight";
+                    break;
             }
-            ballX = intersection_Player1[0];
-            ballY = intersection_Player1[1] - 1;
-            player1_Points = player1_Points + 1;
+            ballX = intersectionBottom[0];
+            ballY = intersectionBottom[1] - 1;
+
+        }else {
+            if (ballNextX > 784) {
+                player2_Points= player2_Points + 1;
+                if (player2_Points>=5){
+                    winnerName = "green player";
+                    gameStatus = "gameOver";
+                    ballX = widthGame / 2;
+                    ballY = heightGame / 2;
+                    ballDirection="";
+                }else{
+                    ballX = widthGame / 2;
+                    ballY = heightGame / 2;
+                    let num = Math.floor(Math.random() * 4);
+                    ballDirection=ballDirections[num];
+                    ballSpeed=200;
+                }
+
+            } else if(ballNextX < borderSize){
+                player1_Points = player1_Points + 1;
+                if (player1_Points>=5){
+                    winnerName = "purple player";
+                    gameStatus = "gameOver";
+                    ballX = widthGame / 2;
+                    ballY = heightGame / 2;
+                    ballDirection="";
+                }else{
+                    ballX = widthGame / 2;
+                    ballY = heightGame / 2;
+                    let num = Math.floor(Math.random() * 4);
+                    ballDirection=ballDirections[num];
+                    ballSpeed=200;
+                }
+            }else {
+                ballX = ballNextX;
+                ballY = ballNextY;
+            }
+        }
+    
+          const  linePlayer = [[player1_X - player1_Half - player1_Width - 20, player1_Y - 5], [player1_X - player1_Half - 20, player1_Y + player1_Height+10]];
+        const  intersectionPlayer = findIntersection(lineBall, linePlayer);
+        if (intersectionPlayer != null) {
+            switch (ballDirection) {
+                case "downRight": 
+                    ballDirection = "downLeft";
+                    break;
+                case "upRight": 
+                    ballDirection = "upLeft";
+                    break;
+            }
+            ballX = intersectionPlayer[0] - 1;
+            ballY = intersectionPlayer[1];
             ballSpeed = ballSpeed + ballSpeedIncrement;
             player1_Speed = player1_Speed + player1_SpeedIncrement;
-          }
+        }
 
-          player1_X = widthGame - player1_Width - 10 + 80;
-    
-          /* Colision con el jugador 2 */
-          const line_Player2 = [[player2_X - player2_Half, player2_Y], [player2_X + player2_Half, player2_Y]];
-          const intersection_Player2 = findIntersection(lineBall, line_Player2);
-  
-          if(intersection_Player2 != null){
-            switch (ballDirection){
-              case "downRight":
-                ballDirection = "upRight";
-                break;
-              case "downLeft":
-                ballDirection = "upLeft";
-                break;
+        const  linePlayer2 = [[player2_X - player2_Half + player2_Width+borderSize+2, player2_Y - 5], [player2_X - player2_Half + player2_Width+borderSize+2, player2_Y + player2_Height+10]];
+        const  intersectionPlayer2 = findIntersection(lineBall, linePlayer2);
+        if (intersectionPlayer2 != null) {
+            switch (ballDirection) {
+                case "downLeft": 
+                    ballDirection = "downRight";
+                    break;
+                case "upLeft": 
+                    ballDirection = "upRight";
+                    break;
             }
-            ballX = intersection_Player2[0];
-            ballY = intersection_Player2[1] - 1;
-            player2_Points = player2_Points + 1;
+            ballX = intersectionPlayer2[0] + 1;
+            ballY = intersectionPlayer2[1];
             ballSpeed = ballSpeed + ballSpeedIncrement;
             player2_Speed = player2_Speed + player2_SpeedIncrement;
-          }
+        }
+          
+          player1_X = widthGame - player1_Width - 10 + 80; 
           player2_X = player2_Width + 130;
     
         }catch(err){
@@ -257,9 +278,13 @@ function gameLoop() {
         }
 
         // Cridar aquí la funció que fa un broadcast amb les dades del joc a tots els clients
-        var gameInfo = { ballX: ballX, ballY: ballY, ballSize: ballSize,
+        /* var gameInfo = { ballX: ballX, ballY: ballY, ballSize: ballSize,
          player1_X: player1_X, player1_Y: player1_Y, player1_Height: player1_Height, player1_Points: player1_Points,
-         player2_X: player2_X, player2_Y: player2_Y, player2_Height: player2_Height, player2_Points: player2_Points,};
+         player2_X: player2_X, player2_Y: player2_Y, player2_Height: player2_Height, player2_Points: player2_Points}; */
+         var gameInfo = { ballX: ballX, ballY: ballY, ballSize: ballSize,
+          player1_X: player1_X, player1_Y: player1_Y, player1_Height: player1_Height, player1_Points: player1_Points,
+          player2_X: player2_X, player2_Y: player2_Y, player2_Height: player2_Height, player2_Points: player2_Points,
+          ballDirection: ballDirection, gameStatus: gameStatus, winnerName: winnerName};
         var rst = { type: "gameInfoBroadcast", gameInfo: gameInfo };
         console.log(rst);
         broadcast(rst)
@@ -306,6 +331,8 @@ function startGame(){
       player1_Y = cnvHeight / 2;
       player2_Y = cnvHeight / 2;
       ballSpeed =100;
+      gameStatus = "playing";
+      ballDirection = ballDirections[Math.floor(Math.random() * 4)];
 
       gameLoop();
 }
@@ -460,6 +487,8 @@ wss.on('connection', (ws) => {
     if(messageAsObject.type == "stopGame"){
       if(gameRunning == true && (metadata.clientNumber == 1 || metadata.clientNumber == 2)){
         stopLoop();
+        player1_Points = 0;
+        player2_Points = 0;
       }
       var rst = { type: "answer", message: "Game stopped" }
     }
@@ -473,18 +502,18 @@ wss.on('connection', (ws) => {
         if(metadata.clientNumber == 0){
           // sacamos del webSocket la informacion, actualizamos variables de player1
           if(messageAsObject.direction == "up"){
-            player1_Direction = "up";
-          }else if(messageAsObject.direction == "down"){
             player1_Direction = "down";
+          }else if(messageAsObject.direction == "down"){
+            player1_Direction = "up";
           }else if(messageAsObject.direction == "none"){
             player1_Direction = "none";
           }
         }else if(metadata.clientNumber == 1){
           // sacamos del webSocket la informacion, actualizamos variables de player2
           if(messageAsObject.direction == "up"){
-            player2_Direction = "up";
-          }else if(messageAsObject.direction == "down"){
             player2_Direction = "down";
+          }else if(messageAsObject.direction == "down"){
+            player2_Direction = "up";
           }else if(messageAsObject.direction == "none"){
             player2_Direction = "none";
           }

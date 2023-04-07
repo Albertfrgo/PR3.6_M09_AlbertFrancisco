@@ -53,6 +53,8 @@ public class CtrlGameCanvas {
 
     private int clientNumber;
     private String infoBroadcasted;
+
+    private String winnerName = "none";
     
     public CtrlGameCanvas () { }
 
@@ -109,16 +111,27 @@ public class CtrlGameCanvas {
     public void updateParameters(JSONObject gameInfo){
         this.ballX = gameInfo.getDouble("ballX");
         this.ballY = gameInfo.getDouble("ballY");
-        if(clientNumber ==0){
+        this.playerY = gameInfo.getDouble("player1_Y");
+         if(clientNumber ==0){
             this.playerY = gameInfo.getDouble("player1_Y");
             this.playerX = gameInfo.getDouble("player1_X");
             this.playerX2 = gameInfo.getDouble("player2_X");
             this.playerY2 = gameInfo.getDouble("player2_Y");
+            this.playerPoints = gameInfo.getInt("player1_Points");
+            this.playerPoints2 = gameInfo.getInt("player2_Points");
+            this.gameStatus = gameInfo.getString("gameStatus");
         }else if(clientNumber ==1){
-            this.playerY = gameInfo.getDouble("player2_Y");
-            this.playerX = gameInfo.getDouble("player2_X");
-            this.playerX2 = gameInfo.getDouble("player1_X");
-            this.playerY2 = gameInfo.getDouble("player1_Y");
+            this.playerY = gameInfo.getDouble("player1_Y");
+            this.playerX = gameInfo.getDouble("player1_X");
+            this.playerX2 = gameInfo.getDouble("player2_X");
+            this.playerY2 = gameInfo.getDouble("player2_Y");
+            this.playerPoints = gameInfo.getInt("player1_Points");
+            this.playerPoints2 = gameInfo.getInt("player2_Points");
+            this.gameStatus = gameInfo.getString("gameStatus");
+        } 
+        if(gameInfo.getString("gameStatus").equals("gameOver")){
+            this.winnerName = gameInfo.getString("winnerName");
+            this.gameStatus = "gameOver2";
         }
     }
 
@@ -137,11 +150,7 @@ public class CtrlGameCanvas {
             currentTimeMillis2 = System.currentTimeMillis();
             /* De momento tiene dos variable que cuentan tiempo en ms para que cada 2000ms aprox, 
              * printe un mensaje */
-            if ((currentTimeMillis2 -currentTimeMillis1) >1000) {
-                currentTimeMillis1 = currentTimeMillis2;
-                System.out.println("Running " + LocalTime.now().toString());
-                sendMessage();
-            }
+        sendMessage();
         }
         /* Fin trozo testeo datos */
 
@@ -191,25 +200,34 @@ public class CtrlGameCanvas {
         gc.strokeRect(0, 0, borderSize, cnv.getHeight());
         gc.strokeRect(0, 0, cnv.getWidth(), borderSize);
         gc.strokeRect(cnv.getWidth() - borderSize, 0, borderSize, cnv.getHeight());
+        gc.strokeRect(0, cnv.getHeight()-borderSize, cnv.getWidth(), borderSize);
 
         // Draw player
-        gc.setStroke(Color.GREEN);
+        gc.setStroke(Color.PURPLE);
         gc.setLineWidth(playerWidth);
         gc.strokeRect(playerX - playerHalf, playerY, playerWidth, playerHeight);
         gc.setLineWidth(playerHeight2);
 
         /* Dibujar el otro jugador */
-        // gc.strokeRect(playerX2 - playerHalf2, playerY2, playerWidth2, playerHeight2);
+        gc.setStroke(Color.GREEN);
+        gc.setLineWidth(playerWidth2);
+        gc.strokeRect(playerX2 - playerHalf2, playerY2, playerWidth2, playerHeight2);
 
         // Draw ball
         gc.setFill(Color.BLACK);
         gc.fillArc(ballX - ballHalf, ballY - ballHalf, ballSize, ballSize, 0.0, 360, ArcType.ROUND);
 
         // Draw text with points
-        gc.setFill(Color.BLACK);
+        gc.setFill(Color.GREEN);
         gc.setFont(new Font("Arial", 20));
-        String pointsText = "Points: " + playerPoints;
-        drawText(gc, pointsText, cnv.getWidth()/2 - 20, 20, "right");
+        String pointsText2 = "" + playerPoints2;
+        drawText(gc, pointsText2, 20, 20, "left");
+
+        // Draw text with points
+        gc.setFill(Color.PURPLE);
+        gc.setFont(new Font("Arial", 20));
+        String pointsText = "" + playerPoints;
+        drawText(gc, pointsText, cnv.getWidth() - 20, 20, "right");
 
         /* Dibujos de letras para visualizar parametros, 
          * FUNCION TESTEO
@@ -240,15 +258,22 @@ public class CtrlGameCanvas {
 
 
         // Draw game over text
-        if (gameStatus.equals("gameOver")) {
+        if (gameStatus.equals("gameOver2")) {
             final double boardCenterX = cnv.getWidth() / 2;
             final double boardCenterY = cnv.getHeight() / 2;
+
+            gc.setFill(Color.BLACK);
 
             gc.setFont(new Font("Arial", 40));
             drawText(gc, "GAME OVER", boardCenterX, boardCenterY - 20, "center");
 
             gc.setFont(new Font("Arial", 20));
             drawText(gc, "You are a loser!", boardCenterX, boardCenterY + 20, "center");
+
+            /* Llamar a un metodo del main para cambiar de pantalla */
+            UtilsViews.setViewAnimating("EndGame");
+            ControllerEndGame ctrlEndGame = (ControllerEndGame) UtilsViews.getController("EndGame");
+            ctrlEndGame.setWinnerName(winnerName);
         }
     }
 

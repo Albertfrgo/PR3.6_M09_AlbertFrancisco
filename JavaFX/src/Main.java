@@ -34,6 +34,7 @@ public class Main extends Application {
             UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
             UtilsViews.addView(getClass(), "Login", "./assets/viewLogin.fxml");
             UtilsViews.addView(getClass(), "ViewGame", "./assets/viewGame.fxml");
+            UtilsViews.addView(getClass(), "EndGame", "./assets/endGameScreen.fxml");
             ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
             
             Scene scene = new Scene(UtilsViews.parentContainer);
@@ -70,10 +71,12 @@ public class Main extends Application {
                     if(msgObj.getString("type").equals("infoConnection")){
                         ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
                     }else if (msgObj.getString("type").equals("gameInfoBroadcast")){
+
                         ctrlGame.updateParameters(msgObj.getJSONObject("gameInfo"));
                         String jsonString = msgObj.getJSONObject("gameInfo").toString();
                         String formattedJsonString = jsonString.replace(",", ",\n");
                         ctrlGame.showBroadcastedInfo(formattedJsonString);
+
                     }
 
                 });
