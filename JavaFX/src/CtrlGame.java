@@ -72,7 +72,7 @@ public class CtrlGame implements Initializable {
     }
 
     public void hideSyncText(){
-        System.out.println("CtrlGame: hideSyncText");
+        // System.out.println("CtrlGame: hideSyncText");
         syncLabel.setVisible(false);
         // showCountDownLabel();
     }
@@ -125,7 +125,7 @@ public class CtrlGame implements Initializable {
     }
 
     public void setWinnerName(String name){
-        System.out.println("CtrlGame: setWinnerName");
+        // System.out.println("CtrlGame: setWinnerName");
         labelWinner.setText("The winner is: "+name);
         showGameOver();
     }
@@ -203,7 +203,7 @@ public class CtrlGame implements Initializable {
 
     private void hideGameOver(){
         showingGameOver = false;
-        System.out.println("CtrlGame: hideGameOver");
+        // System.out.println("CtrlGame: hideGameOver");
         gridInfo.setVisible(false);
         gridInfo.setManaged(false);
         buttonPlayAgain.setVisible(false);
@@ -214,7 +214,7 @@ public class CtrlGame implements Initializable {
 
     private void showGameOver(){
         showingGameOver = true;
-        System.out.println("CtrlGame: showGameOver");
+        // System.out.println("CtrlGame: showGameOver");
         gridInfo.setVisible(true);
         gridInfo.setManaged(true);
         buttonPlayAgain.setVisible(true);

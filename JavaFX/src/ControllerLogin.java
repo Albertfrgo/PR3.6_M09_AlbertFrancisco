@@ -95,7 +95,7 @@ public class ControllerLogin implements Initializable {
                 JSONObject msgObj = new JSONObject(response);
                 // System.out.println("The answer is" +msgObj.toString());
                 if(msgObj.getString("type").equals("infoConnection")){
-                    System.out.println("1 infoConnection received");
+                    // System.out.println("1 infoConnection received");
 
                     ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
                 }else if (msgObj.getString("type").equals("gameInfoBroadcast")){
@@ -104,10 +104,10 @@ public class ControllerLogin implements Initializable {
                     String formattedJsonString = jsonString.replace(",", ",\n");
                     ctrlGame.showBroadcastedInfo(formattedJsonString);
                 }else if (msgObj.getString("type").equals("countdown")){
-                    System.out.println("3 countdown received");
+                    // System.out.println("3 countdown received");
 
                     int numCountReceived = msgObj.getInt("message");
-                    System.out.println("count number received");
+                    // System.out.println("count number received");
                     ctrlGame.setNumberCountdown(numCountReceived);
                     ctrlGame.hideSyncText();
                 }    
@@ -115,7 +115,7 @@ public class ControllerLogin implements Initializable {
         });
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2500);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

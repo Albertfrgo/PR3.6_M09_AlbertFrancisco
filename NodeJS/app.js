@@ -222,6 +222,8 @@ function gameLoop() {
                     let num = Math.floor(Math.random() * 4);
                     ballDirection=ballDirections[num];
                     ballSpeed=200;
+                    player1_Speed = 250;
+                    player2_Speed = 250;
                 }
 
             } else if(ballNextX < borderSize){
@@ -242,6 +244,8 @@ function gameLoop() {
                     let num = Math.floor(Math.random() * 4);
                     ballDirection=ballDirections[num];
                     ballSpeed=200;
+                    player1_Speed = 250;
+                    player2_Speed = 250;
                 }
             }else {
                 ballX = ballNextX;
@@ -332,6 +336,8 @@ function stopLoop(){
   player1_Y = cnvHeight / 2;
   player2_Y = heightGame / 2;
   ballSpeed = 200;
+  player1_Speed = 250;
+  player2_Speed = 250;
 }
 
 /* Funcion que es llamada cuando se recibe un post de iniciar el juego, un jugador se ha logueado */
@@ -346,6 +352,8 @@ function startGame(){
       player1_Points = 0;
       player2_Points = 0;
       ballSpeed =200;
+      player1_Speed = 250;
+      player2_Speed = 250;
       gameStatus = "playing";
       winnerName = "";
       // winnerDecided = false;
@@ -583,6 +591,8 @@ wss.on('connection', (ws) => {
           player1_Points = 0;
           player2_Points = 0;
           ballSpeed =200;
+          player1_Speed = 250;
+          player2_Speed = 250;
           gameStatus = "playing";
           winnerName = "";
 
