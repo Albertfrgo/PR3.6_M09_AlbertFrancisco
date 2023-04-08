@@ -47,8 +47,8 @@ let gameStatus;
 let winnerName;
 let player1_Ready = false;
 let player2_Ready = false;
-let player1_PlayAgain = false;
-let player2_PlayAgain = false;
+let player1_CountEnded = false;
+let player2_CountEnded = false;
 // let winnerDecided = false;
 
 const widthGame = 800;
@@ -489,6 +489,7 @@ wss.on('connection', (ws) => {
     /* El mensaje start game lo envia un cliente cuando se ha logeado y esta listo para empezar,
     para que empieze el juego hacen falta dos clientes listos */
     if(messageAsObject.type == "startGame"){
+      
       var rst = { type: "answer", message: "client "+metadata.clientNumber + " is ready to start" }
       if(metadata.clientNumber == 0){
         player1_Ready = true;
@@ -499,10 +500,21 @@ wss.on('connection', (ws) => {
       if(player1_Ready == true && player2_Ready == true){
         player1_Ready = false;
         player2_Ready = false;
-        console.log("Start game");
-        startGame();
+        console.log("Start countdown");
+        
+        let segundosRestantes = 4;
+
+        let countdownInterval = setInterval(function() {
+          segundosRestantes--;
+          console.log("segundosRestantes: " + segundosRestantes);
+          var rst = { type: "countdown", message: segundosRestantes };
+          broadcast(rst);
+          if (segundosRestantes <= 0) {
+            clearInterval(countdownInterval);
+            startGame();
+          } 
+        }, 1000);
       }
-      var rst = { type: "answer", message: "Game started" }
     }
 
     /* El mensaje stopGame seria el mensaje que aparece por ejemplo cuando un cliente cierra
@@ -573,8 +585,20 @@ wss.on('connection', (ws) => {
           ballSpeed =200;
           gameStatus = "playing";
           winnerName = "";
-          // winnerDecided = false;
-          ballDirection = ballDirections[Math.floor(Math.random() * 4)];
+
+          let segundosRestantes = 4;
+
+          let countdownInterval = setInterval(function() {
+            segundosRestantes--;
+            console.log("segundosRestantes: " + segundosRestantes);
+            var rst = { type: "countdown", message: segundosRestantes };
+            broadcast(rst);
+            if (segundosRestantes <= 0) {
+              clearInterval(countdownInterval);
+              ballDirection = ballDirections[Math.floor(Math.random() * 4)];
+            } 
+          }, 1000);
+
         }
       }
 

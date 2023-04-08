@@ -93,7 +93,8 @@ public class CtrlGameCanvas {
         // Set initial positions
         ballX = cnv.getWidth() / 2;
         ballY = cnv.getHeight() / 2;
-        playerY = cnv.getHeight() / 2;
+        playerY = 450 / 2;
+        playerY2 = 450 / 2;
 
         // Init drawing bucle
         animationTimer = new UtilsFps(this::run, this::draw);
@@ -155,7 +156,7 @@ public class CtrlGameCanvas {
         final double boardWidth = cnv.getWidth();
         final double boardHeight = cnv.getHeight();
 
-        // Keep player in bounds
+/*         // Keep player in bounds
         final double playerMinY = 5+borderSize;
         final double playerMaxY = boardHeight-playerHalf*2-5-borderSize;
 
@@ -166,9 +167,11 @@ public class CtrlGameCanvas {
         } else if (playerY > playerMaxY) {
 
             playerY = playerMaxY;
-        }
+        } */
+
         // Set player Y position
         playerX = cnv.getWidth() - playerWidth - 10 + 80;
+        playerX2 = playerWidth2 + 130;
 
     }
 
@@ -189,7 +192,6 @@ public class CtrlGameCanvas {
         gc.setStroke(Color.PURPLE);
         gc.setLineWidth(playerWidth);
         gc.strokeRect(playerX - playerHalf, playerY, playerWidth, playerHeight);
-        gc.setLineWidth(playerHeight2);
 
         /* Dibujar el otro jugador */
         gc.setStroke(Color.GREEN);

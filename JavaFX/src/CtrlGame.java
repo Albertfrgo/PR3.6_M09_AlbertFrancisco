@@ -1,8 +1,11 @@
 import java.net.URL;
+import javafx.util.Duration;
 import java.util.ResourceBundle;
 
 import org.json.JSONObject;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -30,9 +33,15 @@ public class CtrlGame implements Initializable {
     @FXML
     private GridPane gridInfo;
 
+    @FXML
+    private Label countdownLabel, syncLabel;
+
     private static CtrlGameCanvas ctrlCanvas = new CtrlGameCanvas();
 
     private boolean showingGameOver = false;
+
+    private Timeline timeline;
+    private static int segundosRestantes = 3;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -60,6 +69,59 @@ public class CtrlGame implements Initializable {
 
         Main.socketClient.safeSend(objJson.toString());
         ctrlCanvas.winnerDecided = false;
+    }
+
+    public void hideSyncText(){
+        System.out.println("CtrlGame: hideSyncText");
+        syncLabel.setVisible(false);
+        // showCountDownLabel();
+    }
+
+    public void setNumberCountdown(int number){
+        if(number == 0){
+            hideCountdownLabel();
+        }else{
+            countdownLabel.setVisible(true);
+            String numberText = String.valueOf(number);
+            countdownLabel.setText(numberText);
+        }
+    }
+
+/*     public void showCountDownLabel(){
+        System.out.println("CtrlGame: showCountDownLabel");
+        countdownLabel.setVisible(true);
+        countdownLabel.setText("3");
+        
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            segundosRestantes--;
+            System.out.println("segundosRestantes: "+segundosRestantes);
+            if (segundosRestantes <= 0) {
+                timeline.stop();
+                hideCountdownLabel();
+                // iniciarJuego();
+            } else {
+                countdownLabel.setText(String.valueOf(segundosRestantes));
+            }
+        }));
+        timeline.setCycleCount(3);
+        timeline.setOnFinished(event -> {
+            hideCountdownLabel();
+            iniciarJuego();
+        });
+        timeline.play();
+    } */
+
+/*     private void iniciarJuego(){
+        System.out.println("CtrlGame: iniciarJuego");
+        countdownLabel.setVisible(false);
+        JSONObject objJson = new JSONObject("{}");
+        String type = "countEnded";
+        objJson.put("type", type);
+        Main.socketClient.safeSend(objJson.toString());
+    } */
+
+    public void hideCountdownLabel(){
+        countdownLabel.setVisible(false);
     }
 
     public void setWinnerName(String name){

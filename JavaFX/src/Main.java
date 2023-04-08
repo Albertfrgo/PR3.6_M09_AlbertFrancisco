@@ -1,3 +1,6 @@
+import java.io.IOError;
+import java.io.IOException;
+
 import org.json.JSONObject;
 
 import javafx.application.Application;
@@ -12,13 +15,15 @@ public class Main extends Application {
 
     private CtrlGame ctrlGame;
 
-    public static UtilsWS socketClient;
+    public static UtilsWS socketClient = null;
 
     /* Datos que habra que adaptar a Railway */
     public static int port = 3000;
     public static String protocol = "http";
     public static String host = "localhost";
     public static String protocolWS = "ws";
+
+    public static String server = "localhost";
 
     public static void main(String[] args) {
 
@@ -57,28 +62,6 @@ public class Main extends Application {
 
             
             // Iniciar WebSockets
-            socketClient = UtilsWS.getSharedInstance(protocolWS + "://" + host + ":" + port);
-            socketClient.onMessage((response) -> {
-                
-                // JavaFX necessita que els canvis es facin des de el thread principal
-                Platform.runLater(()->{ 
-                    // Fer aquí els canvis a la interficie
-
-                    /* Recibimos msgObj del webSocket donde tendremos la info recibida, a partir de aqui
-                    * sacar la info y hacer cambios sobre el controlador de la logica de juego ctrlGame
-                    */
-                    JSONObject msgObj = new JSONObject(response);
-                    // System.out.println("The answer is" +msgObj.toString());
-                    if(msgObj.getString("type").equals("infoConnection")){
-                        ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
-                    }else if (msgObj.getString("type").equals("gameInfoBroadcast")){
-                        ctrlGame.updateParameters(msgObj.getJSONObject("gameInfo"));
-                        String jsonString = msgObj.getJSONObject("gameInfo").toString();
-                        String formattedJsonString = jsonString.replace(",", ",\n");
-                        ctrlGame.showBroadcastedInfo(formattedJsonString);
-                    }
-                });
-            });
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -89,11 +72,13 @@ public class Main extends Application {
     public void stop() { 
         ctrlGame.drawingStop();
 
-        JSONObject objJson = new JSONObject("{}");
-        String type = "stopGame";
-        objJson.put("type", type);
-        Main.socketClient.safeSend(objJson.toString());
-        // System.out.println("Send WebSocket: " + objJson.toString());
+        if(Main.socketClient != null){
+            JSONObject objJson = new JSONObject("{}");
+            String type = "stopGame";
+            objJson.put("type", type);
+            Main.socketClient.safeSend(objJson.toString());
+            // System.out.println("Send WebSocket: " + objJson.toString());
+        }
 
         System.exit(1); // Kill all executor services
     }
