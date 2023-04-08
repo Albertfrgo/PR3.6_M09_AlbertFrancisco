@@ -123,9 +123,7 @@ public class CtrlGameCanvas {
         this.playerPoints2 = gameInfo.getInt("player2_Points");
         this.gameStatus = gameInfo.getString("gameStatus");
         if(clientNumber ==0){
-            // this.winnerDecided = gameInfo.getBoolean("winnerDecided");
         }else if(clientNumber ==1){
-            // this.winnerDecided = gameInfo.getBoolean("winnerDecided");
         } 
         if(gameInfo.getString("gameStatus").equals("gameOver")){
             this.winnerName = gameInfo.getString("winnerName");

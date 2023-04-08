@@ -75,10 +75,6 @@ public class CtrlGame implements Initializable {
         ctrlCanvas.setClientNumber(clNumber);
     }
 
-    public void setWinnerDecided(boolean winnerDecided){
-        ctrlCanvas.winnerDecided = winnerDecided;
-    }
-
     public void updateParameters(JSONObject gameInfo){
         ctrlCanvas.updateParameters(gameInfo);
         if(gameInfo.getString("gameStatus").equals("playing") && showingGameOver== true){

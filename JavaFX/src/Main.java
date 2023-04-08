@@ -14,6 +14,7 @@ public class Main extends Application {
 
     public static UtilsWS socketClient;
 
+    /* Datos que habra que adaptar a Railway */
     public static int port = 3000;
     public static String protocol = "http";
     public static String host = "localhost";
@@ -75,11 +76,7 @@ public class Main extends Application {
                         String jsonString = msgObj.getJSONObject("gameInfo").toString();
                         String formattedJsonString = jsonString.replace(",", ",\n");
                         ctrlGame.showBroadcastedInfo(formattedJsonString);
-
-                    }/* else if (msgObj.getString("type").equals("winnerDecided")){
-                        ctrlGame.setWinnerDecided(msgObj.getBoolean("winnerDecided"));
-                    } */
-
+                    }
                 });
             });
         }catch(Exception e){

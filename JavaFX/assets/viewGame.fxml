@@ -11,8 +11,8 @@
 
 <AnchorPane fx:id="anchor" minHeight="450.0" minWidth="450.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CtrlGame">
    <children>
-      <Canvas fx:id="canvas" height="450.0" layoutX="7.0" width="450.0" AnchorPane.bottomAnchor="14.399999999999977" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.399999999999977" AnchorPane.topAnchor="0.0" />
-      <GridPane fx:id="gridInfo" layoutY="8.0" prefHeight="120.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="8.0">
+      <Canvas fx:id="canvas" height="450.0" width="450.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="0.0" />
+      <GridPane fx:id="gridInfo" layoutX="175.0" layoutY="152.0" minHeight="120.0" minWidth="200.0" prefHeight="120.0" prefWidth="200.0" AnchorPane.leftAnchor="300.0" AnchorPane.topAnchor="200.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
@@ -22,17 +22,17 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button fx:id="buttonPlayAgain" mnemonicParsing="false" onAction="#playAgain" prefHeight="50.0" prefWidth="200.0" text="Play Again" GridPane.rowIndex="2">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Button>
             <Label fx:id="labelWinner" text="..." GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-            <Label fx:id="labelGameOver" text="Game Over" GridPane.halignment="CENTER">
+            <Label fx:id="labelGameOver" text="Game Over" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                <font>
                   <Font size="24.0" />
                </font>
             </Label>
+            <Button fx:id="buttonPlayAgain" mnemonicParsing="false" onAction="#playAgain" prefHeight="50.0" prefWidth="200.0" text="Play Again" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Button>
          </children>
       </GridPane>
    </children>
