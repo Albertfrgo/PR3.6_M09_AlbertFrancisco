@@ -3,6 +3,7 @@ const fs = require('fs/promises')
 const url = require('url')
 const post = require('./post.js')
 const { v4: uuidv4 } = require('uuid')
+const dbUtils = require('./dbUtils.js')
 
 /* De momento el servidor lo estoy haciendo para que funcione dos jugadores
 En el servidor se calcula el movimiento de la bola, si hay choque entre la bola y uno de los jugadores,
@@ -11,6 +12,8 @@ para calcular el servidor internamente todo el modelo */
 
 /* Variables para tener un modelo completo del juego */
 /* Tendremos una bola y Player1, el primero que se conecte, y Player2, segundo */
+
+/* HTTP y POSTS a partir de LINEA 450 */
 
 let borderSize =5;
 let gameRunning = false;
@@ -64,6 +67,10 @@ let fpsStartTime;
 let clientNumber = 0;
 
 let ballDirections = ["upRight","upLeft","downRight","downLeft"];
+
+/* Variables temporales para guardar cuando empieza una partida y cuando acaba */
+let timeStartMatch;
+let timeEndMatch;
 
 /* Funcion que se ejecuta cada cierto tiempo en donde se calculara toda la logica del juego
 movimiento de la pelota y colision pelota-jugador, la posicion del jugador la ira recibiendo de
@@ -338,10 +345,13 @@ function stopLoop(){
   ballSpeed = 200;
   player1_Speed = 250;
   player2_Speed = 250;
+
+  timeEndMatch = new Date();
 }
 
 /* Funcion que es llamada cuando se recibe un post de iniciar el juego, un jugador se ha logueado */
 function startGame(){
+  timeStartMatch = new Date();
   gameRunning = true;
   console.log("Starting game execution");
       // Set initial positions
@@ -450,7 +460,11 @@ app.use(express.static('public'))
 const httpServer = app.listen(port, appListen)
 function appListen () {
   console.log(`Listening for HTTP queries on: http://localhost:${port}`)
+  dbUtils.printUsersTest()
 }
+
+app.post("/getUsers", (req, res) => { dbUtils.getUsersList(req, res) });
+app.post("/getStatisticsPlayer", (req, res) => { dbUtils.getStatisticsPlayer(req, res) });
 
 // Run WebSocket server
 const WebSocket = require('ws')
@@ -471,6 +485,7 @@ wss.on('connection', (ws) => {
 
   /* Con client number podemos contar cuantos clientes se han identificado */
   const id = uuidv4()
+  console.log("Client id: " + id)
   const color = Math.floor(Math.random() * 360)
   const metadata = { id, color, clientNumber}
   clientNumber++;
@@ -482,6 +497,8 @@ wss.on('connection', (ws) => {
   ws.on("close", () => {
     socketsClients.delete(ws)
     clientNumber--;
+    let idClientDisconnected = metadata.id
+    console.log("Client disconnected: "+idClientDisconnected);
   })
 
   // What to do when a client message is received
@@ -531,6 +548,7 @@ wss.on('connection', (ws) => {
     if(messageAsObject.type == "stopGame"){
       if(gameRunning == true && (metadata.clientNumber == 0 || metadata.clientNumber == 1)){
         stopLoop();
+        // dbUtils.saveMatch(timeStartMatch, timeEndMatch, 1, 2, player1_Score, player2_Score)
       }
       var rst = { type: "answer", message: "Game stopped" }
     }
@@ -627,5 +645,7 @@ async function broadcast (obj) {
     }
   })
 }
+
+
 
 

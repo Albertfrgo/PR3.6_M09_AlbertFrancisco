@@ -55,6 +55,20 @@ public class ControllerLogin implements Initializable {
     private void setNextView() {
         // System.out.println("Opening filter view");
         UtilsViews.setViewAnimating("ViewGame");
+
+        /* Envio de post hardcodeado para probar como se comportan
+         * HTTPS y WSS a la vez*/
+        JSONObject obj = new JSONObject("{}");
+        // obj.put("type", "usersInfo");
+        System.out.println("We will send this post "+Main.protocol + "://" + Main.host + ":" + Main.port + "/getUsers");
+        UtilsHTTP.sendPOST(Main.protocol + "://" + Main.host + ":" + Main.port + "/getUsers", obj.toString(), (response) -> {
+            callBackGetusers(response);
+        });
+    }
+
+    private static void callBackGetusers(String response) {
+        String printedJson = response;
+        System.out.println("The json received by the post /getUsers:" + printedJson);
     }
 
     @FXML

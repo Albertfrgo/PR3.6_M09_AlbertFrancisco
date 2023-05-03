@@ -1,1 +1,3 @@
-prpong-production.up.railway.app↗
+prpong-production.up.railway.app
+
+wss://prpong-production.up.railway.app:443

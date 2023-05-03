@@ -18,9 +18,9 @@ public class Main extends Application {
     public static UtilsWS socketClient = null;
 
     /* Datos que habra que adaptar a Railway */
-    public static int port = 3000;
-    public static String protocol = "http";
-    public static String host = "localhost";
+    public static int port = 443;
+    public static String protocol = "https";
+    public static String host = "prpong-production.up.railway.app";
     public static String protocolWS = "ws";
 
     public static String server = "localhost";
