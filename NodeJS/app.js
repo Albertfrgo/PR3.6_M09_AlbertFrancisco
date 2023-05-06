@@ -81,7 +81,7 @@ movimiento de la pelota y colision pelota-jugador, la posicion del jugador la ir
 la info que se envia por el websocket */
 function gameLoop() {
   try{
-    const startTime = Date.now();
+    const startTime = getDate();
 
     if (currentFPS >= 1) {
         // Cridar aquí la funció que actualitza el joc (segons currentFPS)
@@ -328,7 +328,7 @@ function gameLoop() {
         broadcast(rst)
     }
 
-    const endTime = Date.now();
+    const endTime = getDate();
     const elapsedTime = endTime - startTime;
     const remainingTime = Math.max(1, TARGET_MS - elapsedTime);
 
@@ -665,6 +665,15 @@ async function broadcast (obj) {
       client.send(messageAsString)
     }
   })
+}
+
+/* Funcion que nos devuelve fecha y hora formatados para
+guardar en BBDD en formato datetime */
+function getDate(){
+  var now = new Date();
+  var formatedDate = now.getFullYear()+"/"+now.getMonth()+"/"+now.getDay()+" ";
+  formatedDate += now.getHours()+":"+now.getMinutes()+":"+now.getSeconds();
+  return formatedDate;
 }
 
 
