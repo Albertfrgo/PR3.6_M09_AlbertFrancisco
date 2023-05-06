@@ -20,6 +20,7 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label fx:id="labelWinner" text="..." GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
@@ -29,6 +30,11 @@
                </font>
             </Label>
             <Button fx:id="buttonPlayAgain" mnemonicParsing="false" onAction="#playAgain" prefHeight="50.0" prefWidth="200.0" text="Play Again" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Button>
+            <Button fx:id="buttonBackToMenu" mnemonicParsing="false" onAction="#playAgain" prefHeight="50.0" prefWidth="200.0" text="BackToMenu" GridPane.rowIndex="3">
                <font>
                   <Font size="18.0" />
                </font>
