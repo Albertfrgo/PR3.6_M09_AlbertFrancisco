@@ -38,7 +38,7 @@ public class Main extends Application {
             final int windowHeight = 600;
 
             UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
-            UtilsViews.addView(getClass(), "Login", "./assets/viewLogin.fxml");
+            UtilsViews.addView(getClass(), "Login", "./assets/viewConnect.fxml");
             UtilsViews.addView(getClass(), "ViewGame", "./assets/viewGame.fxml");
             // UtilsViews.addView(getClass(), "EndGame", "./assets/endGameScreen.fxml");
             ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");

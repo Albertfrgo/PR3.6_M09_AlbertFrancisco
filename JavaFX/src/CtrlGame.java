@@ -31,6 +31,9 @@ public class CtrlGame implements Initializable {
     private Button buttonPlayAgain;
 
     @FXML
+    private Button buttonBackToMenu;
+
+    @FXML
     private GridPane gridInfo;
 
     @FXML
@@ -69,6 +72,12 @@ public class CtrlGame implements Initializable {
 
         Main.socketClient.safeSend(objJson.toString());
         ctrlCanvas.winnerDecided = false;
+    }
+
+    @FXML
+    private void BackToMenu(){
+        hideGameOver();
+        UtilsViews.setViewAnimating("ViewStartScreen");
     }
 
     public void hideSyncText(){
@@ -207,9 +216,11 @@ public class CtrlGame implements Initializable {
         gridInfo.setVisible(false);
         gridInfo.setManaged(false);
         buttonPlayAgain.setVisible(false);
+        buttonBackToMenu.setVisible(false);
         labelGameOver.setVisible(false);
         labelWinner.setVisible(false);
         buttonPlayAgain.setDisable(true);
+        buttonBackToMenu.setDisable(true);
     }
 
     private void showGameOver(){
@@ -218,8 +229,10 @@ public class CtrlGame implements Initializable {
         gridInfo.setVisible(true);
         gridInfo.setManaged(true);
         buttonPlayAgain.setVisible(true);
+        buttonBackToMenu.setVisible(true);
         labelGameOver.setVisible(true);
         labelWinner.setVisible(true);
         buttonPlayAgain.setDisable(false);
+        buttonBackToMenu.setDisable(false);
     }
 }

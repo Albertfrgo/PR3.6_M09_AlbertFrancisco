@@ -33,7 +33,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
-public class ControllerLogin implements Initializable {
+public class CtrlConnect implements Initializable {
     /* 
      * Haura de treballar amb dues variables, el port i el servidor, estatica
      * 

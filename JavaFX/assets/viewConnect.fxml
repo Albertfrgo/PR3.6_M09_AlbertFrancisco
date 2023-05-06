@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ControllerLogin">
+<AnchorPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CtrlConnect">
    <children>
       <Label fx:id="labelServidor" layoutX="234.0" layoutY="123.0" text="Servidor">
          <font>
@@ -14,7 +14,7 @@
          </font>
       </Label>
       <TextField fx:id="txtServidor" layoutX="150.0" layoutY="169.0" prefHeight="30.0" prefWidth="300.0" promptText="servidor" />
-      <Button fx:id="buttonLogin" layoutX="243.0" layoutY="320.0" mnemonicParsing="false" onAction="#loginNoPort" text="Login">
+      <Button fx:id="buttonLogin" layoutX="243.0" layoutY="320.0" mnemonicParsing="false" onAction="#loginNoPort" text="Start">
          <font>
             <Font size="24.0" />
          </font>

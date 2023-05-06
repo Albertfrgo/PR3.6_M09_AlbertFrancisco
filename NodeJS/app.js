@@ -27,6 +27,8 @@ const player1_Half = player1_Height / 2;
 let player1_Speed = 250;
 const player1_SpeedIncrement = 15;
 let player1_Direction = "none";
+let player1_Touches = 0;
+let player1_Name;
 
 let player2_Points = 0;
 let player2_X;
@@ -37,6 +39,8 @@ const player2_Half = player2_Height / 2;
 let player2_Speed = 250;
 const player2_SpeedIncrement = 15;
 let player2_Direction = "none";
+let player2_Touches = 0;
+let player2_Name;
 
 let ballX;
 let ballY;
@@ -222,6 +226,11 @@ function gameLoop() {
                     ballX = widthGame / 2;
                     ballY = heightGame / 2;
                     ballDirection="";
+
+                    let player1_Id = dbUtils.getId(player1_Name);
+                    let player2_Id = dbUtils.getId(player2_Name);
+                    /* La partida ha finalizado, registramos los datos */
+                    dbUtils.saveMatch(timeStartMatch, timeEndMatch, player1_Id, player2_Id, player1_Points, player2_Points, player1_Touches, player2_Touches);
                     
                 }else{
                     ballX = widthGame / 2;
@@ -244,6 +253,12 @@ function gameLoop() {
                     ballX = widthGame / 2;
                     ballY = heightGame / 2;
                     ballDirection="";
+
+                    let player1_Id = dbUtils.getId(player1_Name);
+                    let player2_Id = dbUtils.getId(player2_Name);
+                    /* La partida ha finalizado, registramos los datos */
+                    dbUtils.saveMatch(timeStartMatch, timeEndMatch, player1_Id, player2_Id, player1_Points, player2_Points, player1_Touches, player2_Touches);
+                   
                     
                 }else{
                     ballX = widthGame / 2;
@@ -263,6 +278,7 @@ function gameLoop() {
           const  linePlayer = [[player1_X - player1_Half - player1_Width - 20, player1_Y - 5], [player1_X - player1_Half - 20, player1_Y + player1_Height+10]];
         const  intersectionPlayer = findIntersection(lineBall, linePlayer);
         if (intersectionPlayer != null) {
+            player1_Touches = player1_Touches + 1;
             switch (ballDirection) {
                 case "downRight": 
                     ballDirection = "downLeft";
@@ -280,6 +296,7 @@ function gameLoop() {
         const  linePlayer2 = [[player2_X - player2_Half + player2_Width+borderSize+2, player2_Y - 5], [player2_X - player2_Half + player2_Width+borderSize+2, player2_Y + player2_Height+10]];
         const  intersectionPlayer2 = findIntersection(lineBall, linePlayer2);
         if (intersectionPlayer2 != null) {
+            player2_Touches = player2_Touches + 1;
             switch (ballDirection) {
                 case "downLeft": 
                     ballDirection = "downRight";
@@ -332,7 +349,7 @@ function gameLoop() {
 
 function stopLoop(){
   gameRunning = false;
-  console.log("Stopping game execution");
+  
 
   player1_Points = 0;
   player2_Points = 0;
@@ -347,13 +364,14 @@ function stopLoop(){
   player2_Speed = 250;
 
   timeEndMatch = new Date();
+  console.log("Stopped game execution at " + timeEndMatch);
 }
 
 /* Funcion que es llamada cuando se recibe un post de iniciar el juego, un jugador se ha logueado */
 function startGame(){
   timeStartMatch = new Date();
   gameRunning = true;
-  console.log("Starting game execution");
+  console.log("Started game execution at " + timeStartMatch);
       // Set initial positions
       ballX =widthGame/2;
       ballY =heightGame/2;
@@ -463,8 +481,11 @@ function appListen () {
   dbUtils.printUsersTest()
 }
 
-app.post("/getUsers", (req, res) => { dbUtils.getUsersList(req, res) });
+// app.post("/getUsers", (req, res) => { dbUtils.getUsersList(req, res) });
+app.post("/get_all_rankings", (req, res) => { dbUtils.getUsersList(req, res) });
 app.post("/getStatisticsPlayer", (req, res) => { dbUtils.getStatisticsPlayer(req, res) });
+app.post("/savePlayer", (req, res) => { dbUtils.savePlayer(req, res) });
+app.post("/logPlayer", (req, res) => { dbUtils.logPlayer(req, res) });
 
 // Run WebSocket server
 const WebSocket = require('ws')
@@ -518,9 +539,11 @@ wss.on('connection', (ws) => {
       var rst = { type: "answer", message: "client "+metadata.clientNumber + " is ready to start" }
       if(metadata.clientNumber == 0){
         player1_Ready = true;
+        player1_Name = messageAsObject.playerName;
       }
       if(metadata.clientNumber == 1){
         player2_Ready = true;
+        player2_Name = messageAsObject.playerName;
       }
       if(player1_Ready == true && player2_Ready == true){
         player1_Ready = false;
@@ -543,12 +566,10 @@ wss.on('connection', (ws) => {
     }
 
     /* El mensaje stopGame seria el mensaje que aparece por ejemplo cuando un cliente cierra
-    la ventana, se va del juego, y el bucle deberia detenerse, aparte de detener el bucle,
-    podemos manejar la logica para atorgar la victoria */
+    la ventana, se va del juego, y el bucle deberia detenerse, aparte de detener el bucle */
     if(messageAsObject.type == "stopGame"){
       if(gameRunning == true && (metadata.clientNumber == 0 || metadata.clientNumber == 1)){
         stopLoop();
-        // dbUtils.saveMatch(timeStartMatch, timeEndMatch, 1, 2, player1_Score, player2_Score)
       }
       var rst = { type: "answer", message: "Game stopped" }
     }
