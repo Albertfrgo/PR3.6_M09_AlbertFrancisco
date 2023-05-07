@@ -24,8 +24,8 @@ let player1_Y;
 const player1_Width = 5;
 const player1_Height = 200;
 const player1_Half = player1_Height / 2;
-let player1_Speed = 250;
-const player1_SpeedIncrement = 15;
+let player1_Speed = 25;
+const player1_SpeedIncrement = 1.5;
 let player1_Direction = "none";
 let player1_Touches = 0;
 let player1_Name;
@@ -38,8 +38,8 @@ let player2_Y;
 const player2_Width = 5;
 const player2_Height = 200;
 const player2_Half = player2_Height / 2;
-let player2_Speed = 250;
-const player2_SpeedIncrement = 15;
+let player2_Speed = 25;
+const player2_SpeedIncrement = 1.5;
 let player2_Direction = "none";
 let player2_Touches = 0;
 let player2_Name;
@@ -50,8 +50,10 @@ let ballX;
 let ballY;
 const ballSize =15;
 const ballHalf = ballSize / 2;
-let ballSpeed = 200;
-const ballSpeedIncrement = 25;
+// let ballSpeed = 200;
+let ballSpeed=20;
+// const ballSpeedIncrement = 25;
+const ballSpeedIncrement = 2.5;
 let ballDirection = "upRight";
 
 let gameStatus;
@@ -231,17 +233,27 @@ function gameLoop() {
                     ballY = heightGame / 2;
                     ballDirection="";
 
+                    timeEndMatch = new Date();
+                    console.log("Stopped game execution at " + timeEndMatch);
+
                     /* La partida ha finalizado, registramos los datos */
-                    dbUtils.saveMatch(timeStartMatch, timeEndMatch, player1_Id, player2_Id, player1_Points, player2_Points, player1_Touches, player2_Touches);
-                    
+                    // const duration = Math.floor((timeEndMatch - timeStartMatch) / 1000); // in seconds
+
+                    // let durationResult = horas + ':' + minutos + ':' + segundosRestantes;
+                    let durationResult= Math.floor((timeEndMatch - timeStartMatch) / 1000);
+
+                    console.log("Match duration: " + durationResult + " seconds");
+                    dbUtils.saveMatch(timeStartMatch, durationResult, player1_Id, player2_Id, player1_Points, player2_Points, player1_Touches, player2_Touches);
+
                 }else{
                     ballX = widthGame / 2;
                     ballY = heightGame / 2;
                     let num = Math.floor(Math.random() * 4);
                     ballDirection=ballDirections[num];
-                    ballSpeed=200;
-                    player1_Speed = 250;
-                    player2_Speed = 250;
+                    // ballSpeed=200;
+                    ballSpeed=20;
+                    player1_Speed = 25;
+                    player2_Speed = 25;
                 }
 
             } else if(ballNextX < borderSize){
@@ -256,18 +268,27 @@ function gameLoop() {
                     ballY = heightGame / 2;
                     ballDirection="";
 
-                    /* La partida ha finalizado, registramos los datos */
-                    dbUtils.saveMatch(timeStartMatch, timeEndMatch, player1_Id, player2_Id, player1_Points, player2_Points, player1_Touches, player2_Touches);
-                   
+                    timeEndMatch = new Date();
+                    console.log("Stopped game execution at " + timeEndMatch);
+
+                   /* La partida ha finalizado, registramos los datos */
+                    // const duration = Math.floor((timeEndMatch - timeStartMatch) / 1000); // in seconds
+
+                    // let durationResult = horas + ':' + minutos + ':' + segundosRestantes;
+                    let durationResult= Math.floor((timeEndMatch - timeStartMatch) / 1000);
                     
+                    console.log("Match duration: " + durationResult + " seconds");
+                    dbUtils.saveMatch(timeStartMatch, durationResult, player1_Id, player2_Id, player1_Points, player2_Points, player1_Touches, player2_Touches);
+
                 }else{
                     ballX = widthGame / 2;
                     ballY = heightGame / 2;
                     let num = Math.floor(Math.random() * 4);
                     ballDirection=ballDirections[num];
-                    ballSpeed=200;
-                    player1_Speed = 250;
-                    player2_Speed = 250;
+                    // ballSpeed=200;
+                    ballSpeed=20;
+                    player1_Speed = 25;
+                    player2_Speed = 25;
                 }
             }else {
                 ballX = ballNextX;
@@ -359,12 +380,10 @@ function stopLoop(){
   ballY =heightGame/2;
   player1_Y = cnvHeight / 2;
   player2_Y = heightGame / 2;
-  ballSpeed = 200;
-  player1_Speed = 250;
-  player2_Speed = 250;
-
-  timeEndMatch = new Date();
-  console.log("Stopped game execution at " + timeEndMatch);
+  // ballSpeed=200;
+  ballSpeed=20;
+  player1_Speed = 25;
+  player2_Speed = 25;
 }
 
 /* Funcion que es llamada cuando se recibe un post de iniciar el juego, un jugador se ha logueado */
@@ -379,9 +398,10 @@ function startGame(){
       player2_Y = cnvHeight / 2;
       player1_Points = 0;
       player2_Points = 0;
-      ballSpeed =200;
-      player1_Speed = 250;
-      player2_Speed = 250;
+      // ballSpeed=200;
+      ballSpeed=20;
+      player1_Speed = 25;
+      player2_Speed = 25;
       gameStatus = "playing";
       winnerName = "";
       // winnerDecided = false;
@@ -555,6 +575,7 @@ wss.on('connection', (ws) => {
         player2_Ready = false;
         console.log("Start countdown");
         var rst = { type: "playersInfo", player1_Name: player1_Name, player2_Name: player2_Name, player1_Color: player1_Color, player2_Color: player2_Color };
+        broadcast(rst);
 
         let segundosRestantes = 4;
 
@@ -629,15 +650,17 @@ wss.on('connection', (ws) => {
           console.log("Game will start again, resetting parameters");
 
           gameRunning = true;
+          timeStartMatch = Date.now();
           ballX =widthGame/2;
           ballY =heightGame/2;
           player1_Y = cnvHeight / 2;
           player2_Y = cnvHeight / 2;
           player1_Points = 0;
           player2_Points = 0;
-          ballSpeed =200;
-          player1_Speed = 250;
-          player2_Speed = 250;
+          // ballSpeed=200;
+          ballSpeed=20;
+          player1_Speed = 25;
+          player2_Speed = 25;
           gameStatus = "playing";
           winnerName = "";
 
