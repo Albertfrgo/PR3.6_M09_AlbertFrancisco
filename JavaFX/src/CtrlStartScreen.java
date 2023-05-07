@@ -50,6 +50,7 @@ public class CtrlStartScreen {
             CtrlGame.ctrlCanvas.setColor2(color);
             CtrlGame.ctrlCanvas.setName2(name);
         }
+        ctrlGame.setClientNumber(clientNumber);
         UtilsViews.setViewAnimating("ViewGame");
 
         ctrlGame.startBallMovement();

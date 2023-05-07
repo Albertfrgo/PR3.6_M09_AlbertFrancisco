@@ -108,7 +108,6 @@ public class CtrlConnect implements Initializable {
                 if(msgObj.getString("type").equals("infoConnection")){
                     // System.out.println("1 infoConnection received");
                     ctrl.setClientNumber(msgObj.getInt("clientNumber"));
-                    ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
                 }  
             });
         });
