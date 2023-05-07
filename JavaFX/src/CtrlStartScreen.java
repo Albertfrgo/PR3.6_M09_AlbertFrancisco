@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 
 public class CtrlStartScreen {
     private int clientNumber;
-    private String name,color;
+    private String name,color,id;
     private static CtrlGameCanvas ctrlCanvas = new CtrlGameCanvas();
 
     @FXML
@@ -61,6 +61,7 @@ public class CtrlStartScreen {
         objJson.put("type", type);
         objJson.put("playerName", name);
         objJson.put("playerColor", color);
+        objJson.put("playerId", id);
 
         Main.socketClient.safeSend(objJson.toString());
     }
@@ -83,6 +84,12 @@ public class CtrlStartScreen {
     public void setClientNumber(int clientNumber) {
         this.clientNumber = clientNumber;
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    
     
 
     

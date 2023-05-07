@@ -33,6 +33,7 @@ public class CtrlLogin {
                     CtrlStartScreen ctrl=(CtrlStartScreen) UtilsViews.getController("ViewStartScreen");
                     ctrl.setName(user.getText());
                     ctrl.setColor(objResponse.getString("Color"));
+                    ctrl.setId(objResponse.getString("Id"));
                     UtilsViews.setViewAnimating("ViewStartScreen");
                 } else {
                     showError();
