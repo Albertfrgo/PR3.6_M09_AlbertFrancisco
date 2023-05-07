@@ -34,11 +34,6 @@
                   <Font size="18.0" />
                </font>
             </Button>
-            <Button fx:id="buttonBackToMenu" mnemonicParsing="false" onAction="#playAgain" prefHeight="50.0" prefWidth="200.0" text="BackToMenu" GridPane.rowIndex="3">
-               <font>
-                  <Font size="18.0" />
-               </font>
-            </Button>
          </children>
       </GridPane>
       <Label fx:id="countdownLabel" alignment="CENTER" layoutX="350.0" layoutY="149.0" minHeight="50.0" minWidth="100.0" text="3" textFill="#0a06e1" visible="false">

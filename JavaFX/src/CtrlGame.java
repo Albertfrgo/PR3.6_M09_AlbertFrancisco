@@ -74,12 +74,6 @@ public class CtrlGame implements Initializable {
         ctrlCanvas.winnerDecided = false;
     }
 
-    @FXML
-    private void BackToMenu(){
-        hideGameOver();
-        UtilsViews.setViewAnimating("ViewStartScreen");
-    }
-
     public void hideSyncText(){
         // System.out.println("CtrlGame: hideSyncText");
         syncLabel.setVisible(false);
