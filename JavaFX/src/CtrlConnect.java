@@ -54,16 +54,16 @@ public class CtrlConnect implements Initializable {
     @FXML
     private void setNextView() {
         // System.out.println("Opening filter view");
-        UtilsViews.setViewAnimating("ViewGame");
+        UtilsViews.setViewAnimating("ViewLogin");
 
         /* Envio de post hardcodeado para probar como se comportan
          * HTTPS y WSS a la vez*/
-        JSONObject obj = new JSONObject("{}");
-        // obj.put("type", "usersInfo");
-        System.out.println("We will send this post "+Main.protocol + "://" + Main.host + ":" + Main.port + "/getUsers");
-        UtilsHTTP.sendPOST(Main.protocol + "://" + Main.host + ":" + Main.port + "/getUsers", obj.toString(), (response) -> {
-            callBackGetusers(response);
-        });
+        // JSONObject obj = new JSONObject("{}");
+        // // obj.put("type", "usersInfo");
+        // System.out.println("We will send this post "+Main.protocol + "://" + Main.host + ":" + Main.port + "/getUsers");
+        // UtilsHTTP.sendPOST(Main.protocol + "://" + Main.host + ":" + Main.port + "/getUsers", obj.toString(), (response) -> {
+        //     callBackGetusers(response);
+        // });
     }
 
     private static void callBackGetusers(String response) {
@@ -95,55 +95,9 @@ public class CtrlConnect implements Initializable {
     private void loginNoPort(){
         String urlString = txtServidor.getText();
 
-        ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
         Main.socketClient = UtilsWS.getSharedInstance(urlString);
-
-        Main.socketClient.onMessage((response) -> {
-            // JavaFX necessita que els canvis es facin des de el thread principal
-            Platform.runLater(()->{ 
-                // Fer aquí els canvis a la interficie
-    
-                /* Recibimos msgObj del webSocket donde tendremos la info recibida, a partir de aqui
-                * sacar la info y hacer cambios sobre el controlador de la logica de juego ctrlGame
-                */
-                JSONObject msgObj = new JSONObject(response);
-                // System.out.println("The answer is" +msgObj.toString());
-                if(msgObj.getString("type").equals("infoConnection")){
-                    // System.out.println("1 infoConnection received");
-
-                    ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
-                }else if (msgObj.getString("type").equals("gameInfoBroadcast")){
-                    ctrlGame.updateParameters(msgObj.getJSONObject("gameInfo"));
-                    String jsonString = msgObj.getJSONObject("gameInfo").toString();
-                    String formattedJsonString = jsonString.replace(",", ",\n");
-                    ctrlGame.showBroadcastedInfo(formattedJsonString);
-                }else if (msgObj.getString("type").equals("countdown")){
-                    // System.out.println("3 countdown received");
-
-                    int numCountReceived = msgObj.getInt("message");
-                    // System.out.println("count number received");
-                    ctrlGame.setNumberCountdown(numCountReceived);
-                    ctrlGame.hideSyncText();
-                }    
-            });
-        });
-
-        try {
-            Thread.sleep(2500);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         setNextView();
 
-        ctrlGame.startBallMovement();
-
-        JSONObject objJson = new JSONObject("{}");
-        String type = "startGame";
-        objJson.put("type", type);
-        Main.socketClient.safeSend(objJson.toString());
-    
     }
 
 

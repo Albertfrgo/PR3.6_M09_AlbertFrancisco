@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CtrlStatistics">
+   <children>
+      <Button layoutX="29.0" layoutY="25.0" mnemonicParsing="false" onAction="#setViewListPlayers" text="&lt;--" />
+      <Label layoutX="238.0" layoutY="24.0" text="Estadistiques">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
+      <Label fx:id="nom" layoutX="483.0" layoutY="24.0" text="&quot;Nom&quot;">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
+      <Label layoutX="63.0" layoutY="147.0" text="Partides guanyades:">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label fx:id="wins" layoutX="329.0" layoutY="147.0" text="1">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="63.0" layoutY="233.0" text="Partides perdudes:">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label fx:id="lose" layoutX="329.0" layoutY="233.0" text="1">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="63.0" layoutY="315.0" text="Partida més llarga:">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label fx:id="duration" layoutX="289.0" layoutY="315.0" text="1 minuts 10 segons">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label fx:id="game1" layoutX="182.0" layoutY="374.0" prefHeight="35.0" prefWidth="527.0" text="Label">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label layoutX="63.0" layoutY="457.0" text="Partida amb més tocs:">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label fx:id="touchs" layoutX="329.0" layoutY="457.0" text="20 tocs">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+      <Label fx:id="game2" layoutX="182.0" layoutY="517.0" prefHeight="35.0" prefWidth="527.0" text="Label">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

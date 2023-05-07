@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CtrlLogin">
+   <children>
+      <Label layoutX="202.0" layoutY="158.0" text="Usuari:">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
+      <TextField fx:id="user" layoutX="202.0" layoutY="211.0" prefHeight="53.0" prefWidth="397.0" />
+      <Label layoutX="202.0" layoutY="292.0" text="Contrasenya:">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
+      <PasswordField fx:id="password" layoutX="202.0" layoutY="345.0" prefHeight="53.0" prefWidth="397.0" />
+      <Button layoutX="298.0" layoutY="434.0" mnemonicParsing="false" onAction="#setViewStart" prefHeight="38.0" prefWidth="205.0" text="ACCEDIR" />
+      <Button layoutX="639.0" layoutY="14.0" mnemonicParsing="false" onAction="#setViewRegister" prefHeight="38.0" prefWidth="137.0" text="REGISTRAR-SE" />
+      <Label fx:id="error" layoutX="364.0" layoutY="93.0" text="ERROR" textFill="RED" visible="false">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

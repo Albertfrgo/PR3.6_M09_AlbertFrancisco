@@ -39,8 +39,13 @@ public class Main extends Application {
 
             UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
             UtilsViews.addView(getClass(), "Login", "./assets/viewConnect.fxml");
+            UtilsViews.addView(getClass(), "ViewLogin", "./assets/viewLogin.fxml");
+            UtilsViews.addView(getClass(), "ViewRegister", "./assets/viewRegister.fxml");
+            UtilsViews.addView(getClass(), "ViewStartScreen", "./assets/viewStartScreen.fxml");
+            UtilsViews.addView(getClass(), "ViewListPlayers", "./assets/viewListPlayers.fxml");
+            UtilsViews.addView(getClass(), "ItemPlayer", "./assets/itemPlayer.fxml");
+            UtilsViews.addView(getClass(), "ViewStatistics", "./assets/viewStatistics.fxml");
             UtilsViews.addView(getClass(), "ViewGame", "./assets/viewGame.fxml");
-            // UtilsViews.addView(getClass(), "EndGame", "./assets/endGameScreen.fxml");
             ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
             
             Scene scene = new Scene(UtilsViews.parentContainer);

@@ -21,7 +21,6 @@ public class CtrlGameCanvas {
     private double borderSize = 5;
 
     private String gameStatus = "playing";
-
     private int playerPoints = 0;
     private double playerX = Double.POSITIVE_INFINITY;
     private double playerY = Double.POSITIVE_INFINITY;
@@ -31,6 +30,8 @@ public class CtrlGameCanvas {
     private double playerSpeed = 250;
     private final double playerSpeedIncrement = 15;
     public String playerDirection = "none";
+    private String color1="purple";
+    private String name1="Player1";
 
     private int playerPoints2 = 0;
     private double playerX2 = Double.POSITIVE_INFINITY;
@@ -41,6 +42,10 @@ public class CtrlGameCanvas {
     private double playerSpeed2 = 250;
     private final double playerSpeedIncrement2 = 15;
     public String playerDirection2 = "none";
+    private String color2="green";
+    private String name2="Player2";
+
+
 
     private double ballX = Double.POSITIVE_INFINITY;
     private double ballY = Double.POSITIVE_INFINITY;
@@ -80,6 +85,22 @@ public class CtrlGameCanvas {
 
         Main.socketClient.safeSend(objJson.toString());
         // System.out.println("Send WebSocket: " + objJson.toString());
+    }
+
+    public void setColor1(String color1) {
+        this.color1 = color1;
+    }
+
+    public void setName1(String name1) {
+        this.name1 = name1;
+    }
+
+    public void setColor2(String color2) {
+        this.color2 = color2;
+    }
+
+    public void setName2(String name2) {
+        this.name2 = name2;
     }
 
     // Iniciar el context i bucle de dibuix
@@ -189,12 +210,56 @@ public class CtrlGameCanvas {
         gc.strokeRect(0, cnv.getHeight()-borderSize, cnv.getWidth(), borderSize);
 
         // Draw player
-        gc.setStroke(Color.PURPLE);
+        if(color1.equals("pink")){
+            gc.setStroke(Color.PINK);
+        }else if(color1.equals("purple")){
+            gc.setStroke(Color.PURPLE);
+        }else if(color1.equals("red")){
+            gc.setStroke(Color.RED);
+        }else if(color1.equals("orange")){
+            gc.setStroke(Color.ORANGE);
+        }else if(color1.equals("yellow")){
+            gc.setStroke(Color.YELLOW);
+        }else if(color1.equals("lime")){
+            gc.setStroke(Color.LIME);
+        }else if(color1.equals("green")){
+            gc.setStroke(Color.GREEN);
+        }else if(color1.equals("cyan")){
+            gc.setStroke(Color.CYAN);
+        }else if(color1.equals("blue")){
+            gc.setStroke(Color.BLUE);
+        }else if(color1.equals("navy")){
+            gc.setStroke(Color.NAVY);
+        }else if(color1.equals("black")){
+            gc.setStroke(Color.BLACK);
+        }
         gc.setLineWidth(playerWidth);
         gc.strokeRect(playerX - playerHalf, playerY, playerWidth, playerHeight);
 
         /* Dibujar el otro jugador */
-        gc.setStroke(Color.GREEN);
+        if(color2.equals("pink")){
+            gc.setStroke(Color.PINK);
+        }else if(color2.equals("purple")){
+            gc.setStroke(Color.PURPLE);
+        }else if(color2.equals("red")){
+            gc.setStroke(Color.RED);
+        }else if(color2.equals("orange")){
+            gc.setStroke(Color.ORANGE);
+        }else if(color2.equals("yellow")){
+            gc.setStroke(Color.YELLOW);
+        }else if(color2.equals("lime")){
+            gc.setStroke(Color.LIME);
+        }else if(color2.equals("green")){
+            gc.setStroke(Color.GREEN);
+        }else if(color2.equals("cyan")){
+            gc.setStroke(Color.CYAN);
+        }else if(color2.equals("blue")){
+            gc.setStroke(Color.BLUE);
+        }else if(color2.equals("navy")){
+            gc.setStroke(Color.NAVY);
+        }else if(color2.equals("black")){
+            gc.setStroke(Color.BLACK);
+        }
         gc.setLineWidth(playerWidth2);
         gc.strokeRect(playerX2 - playerHalf2, playerY2, playerWidth2, playerHeight2);
 
@@ -203,15 +268,59 @@ public class CtrlGameCanvas {
         gc.fillArc(ballX - ballHalf, ballY - ballHalf, ballSize, ballSize, 0.0, 360, ArcType.ROUND);
 
         // Draw text with points
-        gc.setFill(Color.GREEN);
+        if(color2.equals("pink")){
+            gc.setFill(Color.PINK);
+        }else if(color2.equals("purple")){
+            gc.setFill(Color.PURPLE);
+        }else if(color2.equals("red")){
+            gc.setFill(Color.RED);
+        }else if(color2.equals("orange")){
+            gc.setFill(Color.ORANGE);
+        }else if(color2.equals("yellow")){
+            gc.setFill(Color.YELLOW);
+        }else if(color2.equals("lime")){
+            gc.setFill(Color.LIME);
+        }else if(color2.equals("green")){
+            gc.setFill(Color.GREEN);
+        }else if(color2.equals("cyan")){
+            gc.setFill(Color.CYAN);
+        }else if(color2.equals("blue")){
+            gc.setFill(Color.BLUE);
+        }else if(color2.equals("navy")){
+            gc.setFill(Color.NAVY);
+        }else if(color2.equals("black")){
+            gc.setFill(Color.BLACK);
+        }
         gc.setFont(new Font("Arial", 20));
-        String pointsText2 = "" + playerPoints2;
+        String pointsText2 =playerPoints2+ "  " + name2;
         drawText(gc, pointsText2, 20, 20, "left");
 
         // Draw text with points
-        gc.setFill(Color.PURPLE);
+        if(color1.equals("pink")){
+            gc.setFill(Color.PINK);
+        }else if(color1.equals("purple")){
+            gc.setFill(Color.PURPLE);
+        }else if(color1.equals("red")){
+            gc.setFill(Color.RED);
+        }else if(color1.equals("orange")){
+            gc.setFill(Color.ORANGE);
+        }else if(color1.equals("yellow")){
+            gc.setFill(Color.YELLOW);
+        }else if(color1.equals("lime")){
+            gc.setFill(Color.LIME);
+        }else if(color1.equals("green")){
+            gc.setFill(Color.GREEN);
+        }else if(color1.equals("cyan")){
+            gc.setFill(Color.CYAN);
+        }else if(color1.equals("blue")){
+            gc.setFill(Color.BLUE);
+        }else if(color1.equals("navy")){
+            gc.setFill(Color.NAVY);
+        }else if(color1.equals("black")){
+            gc.setFill(Color.BLACK);
+        }
         gc.setFont(new Font("Arial", 20));
-        String pointsText = "" + playerPoints;
+        String pointsText = name1+ "  " + playerPoints;
         drawText(gc, pointsText, cnv.getWidth() - 20, 20, "right");
 
         // /* Dibujos de letras para visualizar parametros, 

@@ -39,7 +39,7 @@ public class CtrlGame implements Initializable {
     @FXML
     private Label countdownLabel, syncLabel;
 
-    private static CtrlGameCanvas ctrlCanvas = new CtrlGameCanvas();
+    public static CtrlGameCanvas ctrlCanvas = new CtrlGameCanvas();
 
     private boolean showingGameOver = false;
 

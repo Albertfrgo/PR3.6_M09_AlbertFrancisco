@@ -13,7 +13,7 @@
             <Font size="30.0" />
          </font>
       </Label>
-      <TextField fx:id="txtServidor" layoutX="150.0" layoutY="169.0" prefHeight="30.0" prefWidth="300.0" promptText="servidor" />
+      <TextField fx:id="txtServidor" layoutX="150.0" layoutY="169.0" prefHeight="30.0" prefWidth="300.0" promptText="servidor" text="wss://prpong-production.up.railway.app:443" />
       <Button fx:id="buttonLogin" layoutX="243.0" layoutY="320.0" mnemonicParsing="false" onAction="#loginNoPort" text="Start">
          <font>
             <Font size="24.0" />
