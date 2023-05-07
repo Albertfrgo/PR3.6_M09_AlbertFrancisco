@@ -7,7 +7,7 @@ INSERT INTO Players (Nickname, CodePlayer, Color) VALUES
 ('player3', 'ghi789', 'red');
 
 -- Insert 6 matches
-INSERT INTO Matches (Time_Stamp, Duration, Player1_Id, Player2_Id, Player1_Points, Player2_Points, Player1_Touches, Player2_Touches) VALUES 
+INSERT INTO Matches (Time_Stamp, Duration, Player1Id, Player2Id, Player1Points, Player2Points, Player1Touches, Player2Touches) VALUES 
 ('2023-05-05 14:30:00', '00:02:00', 1, 2, 5, 2, 12, 13),
 ('2023-05-06 15:00:00', '00:01:30', 1, 3, 5, 3, 15, 17),
 ('2023-05-07 16:00:00', '00:03:00', 2, 3, 4, 5, 11, 14),

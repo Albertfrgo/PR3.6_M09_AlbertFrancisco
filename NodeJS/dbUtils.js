@@ -89,10 +89,11 @@ async function getStatisticsPlayer(req, res) {
   /* Funcion para guardar una partida, timeStamp es timeStartMatch, 
   se guardara como variable timeStamp y se usara para calcular duracion de la partida 
   las partidas las guarda el server, asi que este metodo no tiene logica de posts*/
-  async function saveMatch(timeStamp, timeEndMatch, player1Id, player2Id, player1Points, player2Points, player1Touches, player2Touches) {
-    console.log("saveMatch: "+timeStamp+" "+timeEndMatch+" "+player1Id+" "+player2Id+" "+player1Points+" "+player2Points+" "+player1Touches+" "+player2Touches);
+  async function saveMatch(timeStamp, timeEndMatch, player1Id = 1, player2Id = 2, player1Points, player2Points, player1Touches, player2Touches) {
+    console.log("saveMatch - timeStamp:"+timeStamp+" timeEndMatch:"+timeEndMatch+" player1Id:"+player1Id+" player2Id:"+player2Id+" player1Points"+player1Points+" player2Points:"+player2Points+" player1Touches:"+player1Touches+" player2Touches:"+player2Touches);
     try {
       const duration = Math.floor((timeEndMatch - timeStamp) / 1000); // in seconds
+      console.log("saveMatch - duration:"+duration);
       const query = `INSERT INTO Matches (Time_Stamp, Duration, Player1Id, Player2Id, Player1Points, Player2Points, Player1Touches, Player2Touches) VALUES ('${new Date(timeStamp).toISOString().slice(0, 19).replace('T', ' ')}', ${duration}, ${player1Id}, ${player2Id}, ${player1Points}, ${player2Points}, ${player1Touches}, ${player2Touches})`;
       await queryDatabase(query);
     } catch (error) {
@@ -130,14 +131,16 @@ async function getStatisticsPlayer(req, res) {
     console.log("logPlayer");
     try {
       const receivedPOST = await post.getPostObject(req);
-      const { nickname, code } = receivedPOST;
+      const { nickname, code, clientNumber } = receivedPOST;
       console.log("nickname: "+nickname+" code:"+code);
   
       const queryLog = `SELECT * FROM Players WHERE Nickname = '${nickname}' AND CodePlayer = '${code}'`;
       const player = await queryDatabase(queryLog);
       let color = player[0].Color;
+      let id = player[0].Id;
       if (player.length >  0) {
-        res.end(JSON.stringify({ "status": "OK", "message": "Player logged correctly", "Logged": true, "Color":color }));
+        console.log("**** ID: "+id);
+        res.end(JSON.stringify({ "status": "OK", "message": "Player logged correctly", "Logged": true, "Color":color, "Id":id }));
       } else {
         res.end(JSON.stringify({ "status": "ERROR", "message": "Invalid nickname or code", "Logged": false, "Color":null  }));
       }
@@ -154,10 +157,11 @@ async function getStatisticsPlayer(req, res) {
     try {
       let query = `SELECT Id FROM Players WHERE Nickname = '${nickname}'`;
       const result = await queryDatabase(query);
+      console.log("** getId result: "+result[0].Id);
       if (result.length === 0) {
         throw new Error(`Player with nickname '${nickname}' not found`);
       }
-      return result[0].Id;
+      return JSON.stringify({"id":result[0].Id});
     } catch (error) {
       console.log(error);
       throw new Error('Failed to get player id');

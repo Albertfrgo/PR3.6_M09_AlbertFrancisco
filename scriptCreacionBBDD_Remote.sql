@@ -23,3 +23,5 @@ CREATE TABLE IF NOT EXISTS Matches (
     FOREIGN KEY (Player1Id) REFERENCES Players(Id),
     FOREIGN KEY (Player2Id) REFERENCES Players(Id)
 );
+
+

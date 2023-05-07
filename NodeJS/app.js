@@ -29,6 +29,8 @@ const player1_SpeedIncrement = 15;
 let player1_Direction = "none";
 let player1_Touches = 0;
 let player1_Name;
+let player1_Id;
+let player1_Color;
 
 let player2_Points = 0;
 let player2_X;
@@ -41,12 +43,14 @@ const player2_SpeedIncrement = 15;
 let player2_Direction = "none";
 let player2_Touches = 0;
 let player2_Name;
+let player2_Id;
+let player2_Color;
 
 let ballX;
 let ballY;
 const ballSize =15;
 const ballHalf = ballSize / 2;
-let ballSpeed = 0;
+let ballSpeed = 200;
 const ballSpeedIncrement = 25;
 let ballDirection = "upRight";
 
@@ -227,8 +231,6 @@ function gameLoop() {
                     ballY = heightGame / 2;
                     ballDirection="";
 
-                    let player1_Id = dbUtils.getId(player1_Name);
-                    let player2_Id = dbUtils.getId(player2_Name);
                     /* La partida ha finalizado, registramos los datos */
                     dbUtils.saveMatch(timeStartMatch, timeEndMatch, player1_Id, player2_Id, player1_Points, player2_Points, player1_Touches, player2_Touches);
                     
@@ -254,8 +256,6 @@ function gameLoop() {
                     ballY = heightGame / 2;
                     ballDirection="";
 
-                    let player1_Id = dbUtils.getId(player1_Name);
-                    let player2_Id = dbUtils.getId(player2_Name);
                     /* La partida ha finalizado, registramos los datos */
                     dbUtils.saveMatch(timeStartMatch, timeEndMatch, player1_Id, player2_Id, player1_Points, player2_Points, player1_Touches, player2_Touches);
                    
@@ -541,16 +541,21 @@ wss.on('connection', (ws) => {
       if(metadata.clientNumber == 0){
         player1_Ready = true;
         player1_Name = messageAsObject.playerName;
+        player1_Color = messageAsObject.playerColor;
+        player1_Id = messageAsObject.playerId;
       }
       if(metadata.clientNumber == 1){
         player2_Ready = true;
         player2_Name = messageAsObject.playerName;
+        player2_Color = messageAsObject.playerColor;
+        player2_Id = messageAsObject.playerId;
       }
       if(player1_Ready == true && player2_Ready == true){
         player1_Ready = false;
         player2_Ready = false;
         console.log("Start countdown");
-        
+        var rst = { type: "playersInfo", player1_Name: player1_Name, player2_Name: player2_Name, player1_Color: player1_Color, player2_Color: player2_Color };
+
         let segundosRestantes = 4;
 
         let countdownInterval = setInterval(function() {
