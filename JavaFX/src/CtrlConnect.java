@@ -94,7 +94,6 @@ public class CtrlConnect implements Initializable {
     @FXML
     private void loginNoPort(){
         String urlString = txtServidor.getText();
-        ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
         CtrlStartScreen ctrl = (CtrlStartScreen) UtilsViews.getController("ViewStartScreen");
 
         Main.socketClient = UtilsWS.getSharedInstance(urlString);
@@ -104,7 +103,6 @@ public class CtrlConnect implements Initializable {
 
                 JSONObject msgObj = new JSONObject(response);
                 // System.out.println("The answer is" +msgObj.toString());
-                System.out.println(msgObj);
                 if(msgObj.getString("type").equals("infoConnection")){
                     // System.out.println("1 infoConnection received");
                     ctrl.setClientNumber(msgObj.getInt("clientNumber"));

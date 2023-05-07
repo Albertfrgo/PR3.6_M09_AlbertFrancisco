@@ -34,7 +34,7 @@ public class CtrlStartScreen {
                     // System.out.println("count number received");
                     ctrlGame.setNumberCountdown(numCountReceived);
                     ctrlGame.hideSyncText();
-                }else if(msgObj.getString("type").equals("playersIngo")){
+                }else if(msgObj.getString("type").equals("playersInfo")){
                     CtrlGame.ctrlCanvas.setColor1(msgObj.getString("player1_Color"));
                     CtrlGame.ctrlCanvas.setName1(msgObj.getString("player1_Name"));
                     CtrlGame.ctrlCanvas.setColor2(msgObj.getString("player2_Color"));
@@ -43,11 +43,7 @@ public class CtrlStartScreen {
                 } 
             });
         });
-        // try{
-        //     Thread.sleep(1000);
-        // }catch(Exception e){
 
-        // }
         if (clientNumber==0){
             CtrlGame.ctrlCanvas.setColor1(color);
             CtrlGame.ctrlCanvas.setName1(name);
