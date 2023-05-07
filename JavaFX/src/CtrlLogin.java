@@ -29,7 +29,6 @@ public class CtrlLogin {
 
             UtilsHTTP.sendPOST(Main.protocol + "://" + Main.host + ":" + Main.port + "/logPlayer", obj.toString(), (response) -> {
                 JSONObject objResponse = new JSONObject(response);
-                System.out.println(objResponse);
                 if (objResponse.getString("status").equals("OK")) {
                     CtrlStartScreen ctrl=(CtrlStartScreen) UtilsViews.getController("ViewStartScreen");
                     ctrl.setName(user.getText());
