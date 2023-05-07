@@ -5,7 +5,8 @@ import javafx.fxml.FXML;
 
 public class CtrlStartScreen {
     private int clientNumber;
-    private String name,color,id;
+    private String name,color;
+    private int id;
     private static CtrlGameCanvas ctrlCanvas = new CtrlGameCanvas();
 
     @FXML
@@ -85,7 +86,7 @@ public class CtrlStartScreen {
         this.clientNumber = clientNumber;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
