@@ -22,11 +22,7 @@ public class CtrlStartScreen {
                 */
                 JSONObject msgObj = new JSONObject(response);
                 // System.out.println("The answer is" +msgObj.toString());
-                if(msgObj.getString("type").equals("infoConnection")){
-                    // System.out.println("1 infoConnection received");
-                    clientNumber=msgObj.getInt("clientNumber");
-                    ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
-                }else if (msgObj.getString("type").equals("gameInfoBroadcast")){
+                if (msgObj.getString("type").equals("gameInfoBroadcast")){
                     ctrlGame.updateParameters(msgObj.getJSONObject("gameInfo"));
                     String jsonString = msgObj.getJSONObject("gameInfo").toString();
                     String formattedJsonString = jsonString.replace(",", ",\n");
@@ -41,7 +37,12 @@ public class CtrlStartScreen {
                 }    
             });
         });
-        
+        // try{
+        //     Thread.sleep(1000);
+        // }catch(Exception e){
+
+        // }
+        System.out.println(clientNumber);
         if (clientNumber==0){
             CtrlGame.ctrlCanvas.setColor1(color);
             CtrlGame.ctrlCanvas.setName1(name);
@@ -73,6 +74,11 @@ public class CtrlStartScreen {
     public void setColor(String color) {
         this.color = color;
     }
+
+    public void setClientNumber(int clientNumber) {
+        this.clientNumber = clientNumber;
+    }
+    
 
     
 

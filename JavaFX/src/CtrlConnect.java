@@ -94,8 +94,24 @@ public class CtrlConnect implements Initializable {
     @FXML
     private void loginNoPort(){
         String urlString = txtServidor.getText();
+        ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
+        CtrlStartScreen ctrl = (CtrlStartScreen) UtilsViews.getController("ViewStartScreen");
 
         Main.socketClient = UtilsWS.getSharedInstance(urlString);
+        Main.socketClient.onMessage((response) -> {
+            // JavaFX necessita que els canvis es facin des de el thread principal
+            Platform.runLater(()->{ 
+
+                JSONObject msgObj = new JSONObject(response);
+                // System.out.println("The answer is" +msgObj.toString());
+                System.out.println(msgObj);
+                if(msgObj.getString("type").equals("infoConnection")){
+                    // System.out.println("1 infoConnection received");
+                    ctrl.setClientNumber(msgObj.getInt("clientNumber"));
+                    ctrlGame.setClientNumber(msgObj.getInt("clientNumber"));
+                }  
+            });
+        });
         setNextView();
 
     }
