@@ -34,7 +34,13 @@ public class CtrlStartScreen {
                     // System.out.println("count number received");
                     ctrlGame.setNumberCountdown(numCountReceived);
                     ctrlGame.hideSyncText();
-                }    
+                }else if(msgObj.getString("type").equals("playersIngo")){
+                    CtrlGame.ctrlCanvas.setColor1(msgObj.getString("player1_Color"));
+                    CtrlGame.ctrlCanvas.setName1(msgObj.getString("player1_Name"));
+                    CtrlGame.ctrlCanvas.setColor2(msgObj.getString("player2_Color"));
+                    CtrlGame.ctrlCanvas.setName2(msgObj.getString("player2_Name"));
+
+                } 
             });
         });
         // try{
@@ -42,7 +48,6 @@ public class CtrlStartScreen {
         // }catch(Exception e){
 
         // }
-        System.out.println(clientNumber);
         if (clientNumber==0){
             CtrlGame.ctrlCanvas.setColor1(color);
             CtrlGame.ctrlCanvas.setName1(name);
@@ -58,6 +63,9 @@ public class CtrlStartScreen {
         JSONObject objJson = new JSONObject("{}");
         String type = "startGame";
         objJson.put("type", type);
+        objJson.put("playerName", name);
+        objJson.put("playerColor", color);
+
         Main.socketClient.safeSend(objJson.toString());
     }
 
