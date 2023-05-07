@@ -478,6 +478,7 @@ app.use(express.static('public'))
 const httpServer = app.listen(port, appListen)
 function appListen () {
   console.log(`Listening for HTTP queries on: http://localhost:${port}`)
+  
   dbUtils.printUsersTest()
 }
 

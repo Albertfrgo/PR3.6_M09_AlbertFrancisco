@@ -10,8 +10,10 @@ const { stat } = require('fs')
 recibira el nombre del post y nos mandara varias claves con los valores,
 sobre las partidas, habra un json con toda la info de dicha partida */
 async function getStatisticsPlayer(req, res) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   try {
-    const playerName = req.body.playerName;
+    let receivedPOST = await post.getPostObject(req);
+    const playerName = receivedPOST.playerName;
 
     const matchesWonQuery = `SELECT COUNT(*) AS MatchesWon FROM Matches WHERE Player1Points=5 AND Player1Id IN (SELECT Id FROM Players WHERE Nickname='${playerName}') OR Player2Points=5 AND Player2Id IN (SELECT Id FROM Players WHERE Nickname='${playerName}');`;
     const matchesLostQuery = `SELECT COUNT(*) AS MatchesLost FROM Matches WHERE (Player1Points=5 AND Player2Id IN (SELECT Id FROM Players WHERE Nickname='${playerName}')) OR (Player2Points=5 AND Player1Id IN (SELECT Id FROM Players WHERE Nickname='${playerName}'));`;
@@ -23,10 +25,19 @@ async function getStatisticsPlayer(req, res) {
     const longestMatchResult = await queryDatabase(longestMatchQuery);
     const matchWithMoreTouchesResult = await queryDatabase(matchWithMoreTouchesQuery);
 
+    console.log(`longestMatchResult: ${JSON.stringify(longestMatchResult)}`);
+    console.log(`matchWithMoreTouchesResult: ${JSON.stringify(matchWithMoreTouchesResult)}`);
+
+    const longestMatchId = longestMatchResult.length > 0 ? longestMatchResult[0].Id : null;
+    const matchWithMoreTouchesId = matchWithMoreTouchesResult.length > 0 ? matchWithMoreTouchesResult[0].Id : null;
+
     const matchesWon = matchesWonResult[0].MatchesWon;
     const matchesLost = matchesLostResult[0].MatchesLost;
-    const longestMatch = await getMatchInfo(longestMatchResult[0].Id);
-    const matchWithMoreTouches = await getMatchInfo(matchWithMoreTouchesResult[0].Id);
+
+    // const longestMatch = await getMatchInfo(longestMatchResult[0].Id);
+    // const matchWithMoreTouches = await getMatchInfo(matchWithMoreTouchesResult[0].Id);
+    const longestMatch = longestMatchId ? await getMatchInfo(longestMatchId) : null;
+    const matchWithMoreTouches = matchWithMoreTouchesId ? await getMatchInfo(matchWithMoreTouchesId) : null;
 
     const response = {
       MatchesWon: matchesWon,
@@ -34,36 +45,37 @@ async function getStatisticsPlayer(req, res) {
       LongestMatch: longestMatch,
       MatchWithMoreTouches: matchWithMoreTouches,
     };
-
-    res.status(200).json(response);
+    
+    console.log("getStatisticsPlayer will return: MatchesWon:"+matchesWon+" MatchesLost: "+matchesLost+" LongestMatch: "+longestMatch+" MatchesWithMoreTouches: "+matchWithMoreTouches);
+    res.end(JSON.stringify({"status":"OK","message":"Statistics", "MatchesWon":matchesWon, "MatchesLost":matchesLost, "LongestMatch":longestMatch, "MatchWithMoreTouches":matchWithMoreTouches}));
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to get player statistics" });
+    res.end(JSON.stringify({"status":"ERROR","message":"Failed to get player statistics"}));
   }
 }
 
   /* Funcion que nos devuelve una lista de usuarios, es para mostrarlos al
   principio cuando le damos a estadisticas */
-async function getUsersList(req, res){
-  console.log("getUsersList");
-    let receivedPOST = await post.getPostObject(req)
+  async function getUsersList(req, res){
+    console.log("getUsersList");
     try {
-      let query = 'SELECT Id, Nickname FROM Players;'
+      let query = 'SELECT Nickname FROM Players;'
       let result = await queryDatabase(query)
   
-      let usersList = {}
+      let usersList = []
       for (let row of result) {
-        usersList[row.Id] = row.Nickname
+        usersList.push(row.Nickname)
       }
   
       res.writeHead(200, { 'Content-Type': 'application/json' });
       console.log("getUsersList will return: "+JSON.stringify(usersList))
-      res.end(JSON.stringify({"status":"OK","message":usersList}));
+      res.end(JSON.stringify({"status":"OK","message":"List of users", "result":usersList}));
     } catch (error) {
       console.log(error)
       res.end(JSON.stringify({"status":"ERROR","message":"Failed to get user list"}));
     }
   }
+  
 
 
   /* Funcion de TESTEO llamada al iniciar el servidor para comprobar en consola 
@@ -78,11 +90,10 @@ async function getUsersList(req, res){
   se guardara como variable timeStamp y se usara para calcular duracion de la partida 
   las partidas las guarda el server, asi que este metodo no tiene logica de posts*/
   async function saveMatch(timeStamp, timeEndMatch, player1Id, player2Id, player1Points, player2Points, player1Touches, player2Touches) {
-    console.log("saveMatch");
+    console.log("saveMatch: "+timeStamp+" "+timeEndMatch+" "+player1Id+" "+player2Id+" "+player1Points+" "+player2Points+" "+player1Touches+" "+player2Touches);
     try {
       const duration = Math.floor((timeEndMatch - timeStamp) / 1000); // in seconds
-      const query = `INSERT INTO Matches (Time_Stamp, Duration, Player1Id, Player2Id, Player1Points, Player2Points, Player1Touches, Player2Touches)
-        VALUES ('${new Date(timeStamp).toISOString().slice(0, 19).replace('T', ' ')}', ${duration}, ${player1Id}, ${player2Id}, ${player1Points}, ${player2Points}, ${player1Touches}, ${player2Touches})`;
+      const query = `INSERT INTO Matches (Time_Stamp, Duration, Player1Id, Player2Id, Player1Points, Player2Points, Player1Touches, Player2Touches) VALUES ('${new Date(timeStamp).toISOString().slice(0, 19).replace('T', ' ')}', ${duration}, ${player1Id}, ${player2Id}, ${player1Points}, ${player2Points}, ${player1Touches}, ${player2Touches})`;
       await queryDatabase(query);
     } catch (error) {
       console.log(error);
@@ -100,8 +111,7 @@ async function getUsersList(req, res){
     let codePlayer = receivedPOST.codePlayer;
     let color = receivedPOST.color;
     try {
-      const query = `INSERT INTO Players (Nickname, CodePlayer, Color)
-                     '${nickname}', '${codePlayer}', '${color}')`;
+      const query = `INSERT INTO Players (Nickname, CodePlayer, Color) VALUES ('${nickname}', '${codePlayer}', '${color}')`;
       await queryDatabase(query);
       res.end(JSON.stringify({"status":"OK","message":"Player saved correctly"}));
     } catch (error) {
@@ -125,15 +135,15 @@ async function getUsersList(req, res){
   
       const queryLog = `SELECT * FROM Players WHERE Nickname = '${nickname}' AND CodePlayer = '${code}'`;
       const player = await queryDatabase(queryLog);
-      
-      if (player) {
-        res.end(JSON.stringify({ "status": "OK", "message": "Player logged correctly", "Logged": true }));
+      let color = player[0].Color;
+      if (player.length >  0) {
+        res.end(JSON.stringify({ "status": "OK", "message": "Player logged correctly", "Logged": true, "Color":color }));
       } else {
-        res.end(JSON.stringify({ "status": "ERROR", "message": "Invalid nickname or code", "Logged": false }));
+        res.end(JSON.stringify({ "status": "ERROR", "message": "Invalid nickname or code", "Logged": false, "Color":null  }));
       }
     } catch (error) {
       console.log(error);
-      res.end(JSON.stringify({ "status": "ERROR", "message": "Failed to log player", "Logged": false }));
+      res.end(JSON.stringify({ "status": "ERROR", "message": "Failed to log player", "Logged": false, "Color":null  }));
     }
   }
 
@@ -172,6 +182,13 @@ async function getUsersList(req, res){
         "Player1Touches": result[0].Player1Touches,
         "Player2Touches": result[0].Player2Touches
       };
+
+      const queryName1 = `SELECT nickname FROM Players WHERE Id=${matchInfo.Player1Id}`
+      const queryName2 = `SELECT nickname FROM Players WHERE Id=${matchInfo.Player2Id}`
+      const resultName1 = await queryDatabase(queryName1);
+      const resultName2 = await queryDatabase(queryName2);
+      matchInfo.Player1Name = resultName1[0].nickname;
+      matchInfo.Player2Name = resultName2[0].nickname;
       return matchInfo;
     } catch (error) {
       console.error(error);
